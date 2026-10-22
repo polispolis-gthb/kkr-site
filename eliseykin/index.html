@@ -1,6 +1,5 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><title>Разбор @eliseykin_mikhail</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&amp;family=Golos+Text:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
@@ -64,6 +63,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .legend i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
 
 /* таблица роликов */
+.more { font-size: 15px; }
+.more a { text-decoration: none; }
 details { border-top: 1px solid var(--line); padding-top: 14px; }
 summary { cursor: pointer; color: var(--muted); font-size: 15px; }
 summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -175,10 +176,7 @@ body.editing [contenteditable]:focus { outline: 1px solid var(--accent); }
   </div>
   <div class="chart-wrap"><svg id="chart" viewBox="0 0 720 300" role="img" aria-label="Просмотры 30 последних рилс: восемь высоких столбцов с внешним охватом, остальные около тысячи"></svg></div>
   <p>Жёлтые столбцы почти не видно, и это суть. Лучший собственный ролик за год: «5 ЖК Москвы, которые останутся детям» - 2 526 просмотров. При этом самый слабый коллаб с пабликом дал 45 тысяч. Алгоритм не показывает ваши ролики никому, кроме части подписчиков. Скорее всего есть в стратегии ставка на закуп рекламы через коллабы. А что если в органику?</p>
-  <details>
-    <summary>Все 30 роликов списком</summary>
-    <div class="tbl-wrap"><table id="tbl"><thead><tr><th>Дата</th><th>Тип</th><th>Ролик</th><th style="text-align:right;padding-right:16px">Просмотры</th></tr></thead><tbody></tbody></table></div>
-  </details>
+  <p class="more"><a href="/eliseykin/30/" target="_blank" rel="noopener">Все 30 роликов с цифрами →</a></p>
 </section>
 
 <section>
@@ -333,7 +331,7 @@ body.editing [contenteditable]:focus { outline: 1px solid var(--accent); }
       </ul>
     </div>
   </div>
-  
+  <p><br></p>
   <div class="sign">Кирилл Карпеев, KK Production</div>
 </section>
 
@@ -407,7 +405,7 @@ R.forEach((r, i) => {
 
 // таблица
 const tb = document.querySelector("#tbl tbody");
-[...R].reverse().forEach(r => {
+if (tb) [...R].reverse().forEach(r => {
   const tr = document.createElement("tr");
   const name = r[3] || "Свой ролик";
   tr.innerHTML = `<td class="date">${dm(r[1])}</td><td><span class="tag"><i style="background:${COL[r[2]]}"></i>${TYPE[r[2]]}</span></td><td><a href="https://www.instagram.com/reel/${r[0]}/" target="_blank" rel="noopener">${name}</a></td><td class="num">${fmt(r[4])}</td>`;
