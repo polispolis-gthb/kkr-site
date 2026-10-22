@@ -83,6 +83,20 @@ td.date { font-family: var(--mono); font-variant-numeric: tabular-nums; white-sp
 .finding .body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .quote { border-left: 2px solid var(--line); padding-left: 14px; color: var(--muted); font-size: 15px; }
 
+/* уровни контента */
+.levels { display: flex; flex-direction: column; gap: 10px; }
+.lvl { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 16px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.lvl.top { margin-inline: 0; }
+.lvl.mid { margin-inline: 4%; }
+.lvl.low { margin-inline: 8%; border-color: var(--accent); }
+.lvl-k { display: flex; flex-direction: column; gap: 4px; }
+.lvl-n { font: 500 12px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.pct { font: 500 20px/1.2 var(--mono); color: var(--fg); }
+.lvl-b { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lvl-b p { font-size: 15px; color: var(--muted); }
+@media (max-width: 640px) { .lvl { grid-template-columns: minmax(0, 1fr); gap: 8px; } .lvl.mid, .lvl.low { margin-inline: 0; } .lvl-k { flex-direction: row; gap: 12px; align-items: baseline; } }
+.format .lvl-tag { font: 500 11px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
 /* форматы */
 .formats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .format { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -200,25 +214,59 @@ body.editing [contenteditable]:focus { outline: 1px solid var(--accent); }
 </section>
 
 <section>
+  <div class="eyebrow">Как я вижу стратегию</div>
+  <h2>Сначала блогер, потом брокер</h2>
+  <p>Понимаю, что главная задача аккаунта это заявки, и плюсики в комментариях нужны. Но если браться за ваше продюсирование всерьёз, я бы начал с другого: из вас нужно сделать блогера, за которым интересно следить. Квартиру за десятки миллионов покупают у того, кого знают и кому верят. Реклама приводит холодную аудиторию, а личный бренд приводит людей, которые уже хотят купить именно у вас.</p>
+  <div class="levels">
+    <div class="lvl top">
+      <div class="lvl-k"><span class="lvl-n">Верх</span><span class="pct">около 40%</span></div>
+      <div class="lvl-b">
+        <h3>Охват: развлечение и персонаж</h3>
+        <p>Юмор, скетчи, тренды, жизнь брокера изнутри. Вы здесь живой герой, а не диктор с плашкой. Задача: чтобы ролик посмотрели люди, которые вас ещё не знают, и подписались. Продажи на этом уровне почти нет.</p>
+      </div>
+    </div>
+    <div class="lvl mid">
+      <div class="lvl-k"><span class="lvl-n">Середина</span><span class="pct">около 40%</span></div>
+      <div class="lvl-b">
+        <h3>Доверие: польза и экспертиза</h3>
+        <p>Разборы ЖК, честные минусы, расчёты платежей, ответы скептикам, ошибки покупателей. Задача: показать, что вы разбираетесь лучше других. Такие ролики сохраняют и пересылают, на них растёт аккаунт.</p>
+      </div>
+    </div>
+    <div class="lvl low">
+      <div class="lvl-k"><span class="lvl-n">Низ</span><span class="pct">около 20%</span></div>
+      <div class="lvl-b">
+        <h3>Заявки: продающий контент</h3>
+        <p>Конкретные объекты, закрытые показы, встречи с застройщиками, кодовые слова в комментариях. Задача: собрать заявки с тех, кто уже вам доверяет. И даже здесь объект лучше показывать через историю, юмор или честный разбор, а не через рендер.</p>
+      </div>
+    </div>
+  </div>
+  <p>Сейчас почти весь контент живёт на нижнем уровне. Поэтому он продаёт только тем, кому показали рекламу, и не растит аккаунт. Когда работают все три уровня, плюсиков становится больше, а не меньше: их ставят подписчики, которые уже знают вас, и каждая заявка обходится дешевле, чем через паблик.</p>
+</section>
+
+<section>
   <div class="eyebrow">Что можно и нужно снимать(пока примеры бегло)</div>
   <h2>Четыре формата, которые построят доверие к вам лично</h2>
   <div class="formats">
     <div class="format">
+      <div class="lvl-tag">Середина: доверие</div>
       <h3>Честный обзор со стройки</h3>
       <div class="hook">«Три вещи, о которых не скажут на показе СЕТ Веер»</div>
       <p>Михаил на объекте говорит не только плюсы, но и минусы. Брокер, который сам называет минусы, вызывает доверие, которое не купить рекламой. Более триггерные хуки с личным мнением</p>
     </div>
     <div class="format">
+      <div class="lvl-tag">Середина и верх</div>
       <h3>Отвечаю скептикам</h3>
       <div class="hook">«Мне написали: у кого есть 8 млн на взнос? Считаем»</div>
       <p>Берём реальные комментарии и разбираем их с цифрами на экране. Такие ролики спорят, сохраняют и пересылают, и тема никогда не закончится.</p>
     </div>
     <div class="format">
+      <div class="lvl-tag">Низ: заявки</div>
       <h3>Истории покупателей</h3>
       <div class="hook">«Купили два года назад. Сколько квартира стоит сейчас»</div>
       <p>Ваши клиенты в кадре, их решение и результат в рублях. Ровно то, что сработало у блогера, только из вашей базы и регулярно.</p>
     </div>
     <div class="format">
+      <div class="lvl-tag">Верх: охват</div>
       <h3>Скетч-сериал про рынок</h3>
       <div class="hook">«Если бы риелторы говорили правду»</div>
       <p>Юмор про покупку квартиры, где Михаил появляется как эксперт и как живой персонаж. Этот формат топ сейчас и есть собственные кейсы у нас, которые собирают миллионы просмотров и аудиторию</p>
