@@ -1,0 +1,802 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PLITONIT 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: страница сериала. Шапка о сериале, светлый блок цифр, выводы, эпизоды, как снимали, титры. */
+:root {
+  --bg: #101114; --surface: #17191d; --line: #2a2d33;
+  --fg: #ecebe6; --soft: #cfcfca; --muted: #9b9da4; --accent: #d9805a;
+  --paper: #e5e3dd; --paper-2: #efede8; --paper-fg: #15161a; --paper-muted: #5d5f66; --paper-line: #cfccc4;
+  --display: "Unbounded", "Arial Black", sans-serif;
+  --body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+section { padding-block: clamp(56px, 8vw, 100px); }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; line-height: 1.08; text-wrap: balance; }
+h2 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+img { display: block; max-width: 100%; }
+.kicker { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px 24px; margin-bottom: clamp(28px, 4vw, 44px); }
+.head h2 { margin-top: 12px; }
+.frame { aspect-ratio: 6 / 5; overflow: hidden; border-radius: 6px; background: var(--line); }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* HERO */
+.hero { padding-block: clamp(32px, 6vw, 72px) clamp(40px, 6vw, 72px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.hero h1 { font-weight: 800; font-size: clamp(48px, 9vw, 116px); letter-spacing: -0.035em; line-height: 0.92; margin-top: 14px; }
+.hero h1 span { color: var(--accent); }
+.banner { grid-column: 1 / -1; position: relative; border-radius: 10px; overflow: hidden; min-height: clamp(300px, 40vw, 480px); display: flex; align-items: flex-end; padding: clamp(20px, 3.5vw, 44px); background: var(--surface); }
+.banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7) brightness(0.9); pointer-events: none; user-select: none; }
+.banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(16,17,20,0.97) 0%, rgba(16,17,20,0.82) 38%, rgba(16,17,20,0.35) 75%, rgba(16,17,20,0.2) 100%); }
+.banner-in { position: relative; z-index: 1; }
+.banner .kicker { color: #c9c9c4; }
+.banner .sub { margin-top: 14px; }
+.hero { align-items: start; }
+
+.hero .sub { margin-top: 22px; font-size: clamp(22px, 2.8vw, 32px); font-weight: 600; }
+.meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.meta span { border: 1px solid var(--line); padding: 5px 11px; border-radius: 999px; font-size: 13.5px; color: var(--muted); }
+.story { margin-top: 22px; display: grid; gap: 14px; max-width: 58ch; color: var(--soft); }
+.story p:first-child { color: var(--fg); font-size: 19px; }
+.credits { margin-top: 26px; display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 20px; max-width: 520px; }
+.credits div { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.credits dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.credits dd { margin: 0; font-family: var(--display); font-weight: 600; font-size: 17px; }
+.stills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stills figure { margin: 0; }
+.stills figcaption { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.seasons { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.season { background: var(--surface); padding: 16px 20px; display: grid; gap: 2px; }
+.season b { font-family: var(--display); font-weight: 600; font-size: 16px; }
+.season span { color: var(--muted); font-size: 14.5px; }
+.season.now { background: #1f2126; }
+.season.now b { color: var(--accent); }
+.season { border: 1px solid transparent; transition: background .2s, border-color .2s, color .2s; }
+a.season { text-decoration: none; }
+a.season:hover, button.season:hover { background: #22252b; border-color: #3a3d45; }
+a.season:hover b, button.season:hover b { color: var(--accent); }
+a.season:active, button.season:active { background: rgba(217, 128, 90, 0.16); border-color: var(--accent); }
+.season.now { border-color: rgba(217, 128, 90, 0.45); }
+button.season { all: unset; box-sizing: border-box; display: grid; gap: 2px; background: var(--surface); padding: 16px 20px; cursor: pointer; border: 1px solid transparent; transition: background .2s, border-color .2s; }
+button.season.flip { background: rgba(217, 128, 90, 0.14); border-color: var(--accent); }
+button.season.flip b { color: var(--accent); }
+button.season:focus-visible, a.season:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.season small { display: block; margin-top: 8px; font-family: var(--body); font-size: 12.5px; font-weight: 400; letter-spacing: 0; color: #74777f; }
+.season b em { font-style: normal; font-family: var(--body); font-weight: 500; font-size: 11.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.season b { text-transform: uppercase; letter-spacing: 0.03em; }
+.season b em { text-transform: none; letter-spacing: 0; }
+.season b { display: flex; align-items: center; gap: 8px; }
+.s-ic { display: inline-flex; width: 18px; height: 18px; color: var(--muted); }
+.s-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.soon .s-cal, .soon .on { display: none; }
+.soon.flip .s-clap, .soon.flip .off { display: none; }
+.soon.flip .s-cal, .soon.flip .on { display: inline; }
+.soon.flip .s-ic { color: var(--accent); }
+.soon .on { color: var(--fg); }
+
+/* NUMBERS */
+.paper { background: var(--paper); color: var(--paper-fg); }
+.paper .kicker { color: var(--paper-muted); }
+.big { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--paper-line); }
+.big div { padding: 22px 20px 26px 0; border-right: 1px solid var(--paper-line); min-width: 0; }
+.big div + div { padding-left: 20px; }
+.big div:last-child { border-right: 0; }
+.big b { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(28px, 3.2vw, 42px); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.big span { display: block; margin-top: 10px; font-size: 15px; color: var(--paper-muted); line-height: 1.4; }
+.sub-h { margin-top: clamp(48px, 7vw, 72px); margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; align-items: baseline; }
+.sub-h h3 { font-size: clamp(20px, 2.4vw, 26px); }
+.hits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 20px); }
+.hit { display: flex; flex-direction: column; text-decoration: none; background: var(--paper-2); border: 1px solid var(--paper-line); border-radius: 8px; overflow: hidden; transition: border-color .2s; min-width: 0; }
+.hit:hover { border-color: var(--paper-fg); }
+.hit .frame { border-radius: 0; }
+.hit-b { padding: 16px 18px 18px; display: grid; gap: 6px; }
+.hit-l { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-muted); }
+.hit-n { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 3.4vw, 42px); letter-spacing: -0.02em; line-height: 1; }
+.hit-t { font-weight: 600; font-size: 16px; }
+.hit-s { font-size: 14px; color: var(--paper-muted); }
+.plat { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr); gap: clamp(24px, 5vw, 56px); align-items: start; }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.bar { display: grid; grid-template-columns: 100px minmax(0, 1fr) 110px; align-items: center; gap: 14px; }
+.bar-n { font-weight: 600; }
+.bar-t { height: 24px; background: var(--paper-line); position: relative; border-radius: 2px; overflow: hidden; }
+.bar-t i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--paper-fg); }
+.bar:first-child .bar-t i { background: var(--accent); }
+.bar-v { font-family: var(--mono); font-size: 15px; text-align: right; font-variant-numeric: tabular-nums; }
+.mini { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.mini th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-muted); text-align: right; padding: 0 0 8px 10px; }
+.mini th:first-child, .mini td:first-child { text-align: left; padding-left: 0; }
+.mini td { padding: 11px 0 11px 10px; border-top: 1px solid var(--paper-line); text-align: right; font-size: 15.5px; }
+.mini td:first-child { font-weight: 600; }
+.mini tr.top td:last-child { color: #a8481f; font-weight: 600; }
+.plat-note { margin-top: 14px; font-size: 14px; color: var(--paper-muted); }
+
+/* FINDINGS */
+.finds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.find { background: var(--surface); padding: clamp(22px, 3vw, 34px); display: grid; gap: 10px; align-content: start; }
+.find.wide { grid-column: 1 / -1; }
+.find b { font-family: var(--display); font-weight: 800; font-size: clamp(36px, 4.6vw, 56px); letter-spacing: -0.02em; line-height: 1; color: var(--accent); }
+.find h3 { font-size: 19px; }
+.find p { color: var(--muted); font-size: 15.5px; max-width: 60ch; }
+
+/* EPISODES */
+.cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; grid-auto-flow: dense; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; min-width: 0; transition: border-color .2s; }
+.card:hover { border-color: #474a52; }
+.card-btn { all: unset; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; cursor: pointer; }
+.card-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.card-img { position: relative; display: block; aspect-ratio: 6 / 5; overflow: hidden; background: var(--line); }
+.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-n { position: absolute; left: 0; top: 0; background: rgba(16,17,20,.82); font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--fg); padding: 5px 9px; border-bottom-right-radius: 6px; }
+.card-sum { display: flex; flex-direction: column; gap: 4px; padding: 11px 12px 13px; }
+.card-t { font-weight: 600; font-size: 14.5px; line-height: 1.25; color: var(--fg); min-height: 2.5em; }
+.card-v { font-family: var(--display); font-weight: 600; font-size: 21px; color: var(--fg); line-height: 1.1; }
+.card-m { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.card.open { grid-column: span 3; border-color: var(--accent); display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+.card-det[hidden] { display: none; }
+.card-det { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border-left: 1px solid var(--line); }
+.det-date { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.card-det p { font-size: 14px; color: var(--soft); line-height: 1.45; }
+.det-k { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.det-k span { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; }
+.det-k b { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--fg); }
+.det-p { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 13px; }
+.det-p li { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 5px; }
+.det-p b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.det-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.det-links a { font-family: var(--mono); font-size: 12px; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; color: var(--muted); }
+.det-links a:first-child { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+.det-links a:hover { border-color: var(--accent); color: var(--fg); }
+.det-links a:first-child:hover { color: var(--bg); }
+
+/* HOW */
+.how { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.focus { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.focus li { border-top: 1px solid var(--paper-line); padding-top: 14px; }
+.focus h3 { font-size: 18px; }
+.focus p { margin-top: 6px; color: var(--paper-muted); font-size: 15.5px; }
+.spec { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper-line); border: 1px solid var(--paper-line); border-radius: 8px; overflow: hidden; }
+.spec div { background: var(--paper-2); padding: 16px 18px; min-width: 0; }
+.spec div.wide { grid-column: 1 / -1; }
+.spec dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper-muted); }
+.spec dd { margin: 5px 0 0; font-size: 16px; }
+
+/* END */
+.end { text-align: center; }
+.roll { display: grid; gap: 22px; margin: 0 auto; max-width: 560px; }
+.roll div { display: grid; gap: 4px; }
+.roll span { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.roll b { font-family: var(--display); font-weight: 400; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: 0.02em; }
+.offer { margin: clamp(56px, 8vw, 88px) auto 0; max-width: 720px; border-top: 1px solid var(--line); padding-top: clamp(40px, 6vw, 56px); }
+.offer h2 { font-size: clamp(26px, 3.6vw, 40px); }
+.offer p { margin-top: 14px; color: var(--muted); }
+.contacts { margin-top: 26px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.contact { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 8px 8px 18px; font-weight: 600; text-decoration: none; min-width: 0; }
+.contact small { font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.contact a { text-decoration: none; }
+.tg { padding-right: 18px; }
+.copy { font: 500 12px var(--mono); background: var(--fg); color: var(--bg); border: 0; border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.foot { padding-block: 28px 36px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+@media (max-width: 960px) {
+  .hero, .plat, .how { grid-template-columns: minmax(0, 1fr); }
+  .stills { max-width: 560px; }
+  .big { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .big div:nth-child(2) { border-right: 0; }
+  .big div:nth-child(3) { padding-left: 0; }
+  .big div:nth-child(n+3) { border-top: 1px solid var(--paper-line); }
+  .hits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .seasons, .finds, .hits { grid-template-columns: minmax(0, 1fr); }
+  .credits div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card.open { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr); }
+  .card.open .card-det { border-left: 0; border-top: 1px solid var(--line); }
+  .bar { grid-template-columns: 84px minmax(0, 1fr); }
+  .bar-v { grid-column: 2; text-align: left; margin-top: -8px; }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+  .big b { font-size: 25px; }
+  .banner { min-height: 400px; }
+  .banner::after { background: linear-gradient(to top, rgba(16,17,20,0.97) 0%, rgba(16,17,20,0.9) 55%, rgba(16,17,20,0.6) 100%); }
+  .big div { padding-right: 12px; }
+  .big div + div { padding-left: 12px; }
+  .big div:nth-child(3) { padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+#sv1 .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 640px) { #sv1 .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } #sv1 .cards .card:last-child:not(.open) { grid-column: 1 / -1; } #sv1 .cards .card:last-child:not(.open) .card-img { aspect-ratio: 16 / 9; } }
+</style>
+
+<div class="sv" id="sv2">
+<header class="wrap hero">
+  <div class="banner">
+    <img src="f/mosaic.jpg" alt="" width="1516" height="758">
+    <div class="banner-in">
+      <span class="kicker">Сериал · Сезон 2 · 2026</span>
+      <h1>PLITONIT <span>2.0</span></h1>
+      <p class="sub">Ремонт глазами тех, кто его делает</p>
+    </div>
+  </div>
+  <div>
+    <div class="meta" style="margin-top:0"><span>Комедия</span><span>15 эпизодов</span><span>Вертикальный формат 9:16</span><span>Instagram, TikTok, VK, YouTube</span></div>
+    <div class="story">
+      <p>Мастера, заказчики, дизайнеры и вечный вопрос «когда сдадим объект?». Комедийный сериал о жизни на ремонте, в котором строители узнают себя с первой секунды.</p>
+      <p>PLITONIT 30 лет производит плиточные клеи и строительные смеси. Сериал создан для имиджа бренда: говорить с мастерами и теми, кто затевает ремонт, на их собственном языке. В главных ролях настоящие сотрудники PLITONIT и приглашённые актёры.</p>
+    </div>
+  </div>
+  <dl class="credits" style="margin-top:0">
+    <div><dt>Режиссёр и продюсер</dt><dd>Кирилл Карпеев</dd></div>
+    <div><dt>Производство</dt><dd>KK&nbsp;Production</dd></div>
+    <div><dt>Для бренда</dt><dd>PLITONIT</dd></div>
+  </dl>
+  <div class="seasons">
+    <button class="season go" type="button" data-go="1"><b>Сезон 1 <em>пилотный</em></b><span>9 эпизодов, 2,10 млн просмотров</span><small>Открыть сезон →</small></button>
+    <div class="season now"><b>Сезон 2</b><span>15 эпизодов, 6,63 млн просмотров</span><small>Сейчас открыт</small></div>
+    <button class="season soon" type="button" aria-pressed="false"><b>Сезон 3 <span class="s-ic"><svg class="s-clap" viewBox="0 0 24 24"><path d="M4 10h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 10 5.5 5.2a1 1 0 0 1 1.2-.7l12.6 3.4L20 10"/><path d="m9 5.3 1.8 4.2M14 6.6l1.8 3.4"/></svg><svg class="s-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span></b><span class="off">Coming soon</span><span class="on">Сезон в разработке, скоро съёмки</span></button>
+  </div>
+</header>
+
+<section class="paper" id="numbers">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Сезон в цифрах</span><h2>Шесть недель в ленте</h2></div><span class="kicker">С 7 сентября по 12 октября 2026</span></div>
+    <div class="big">
+      <div><b>6,63 млн</b><span>просмотров</span></div>
+      <div><b>205 тыс.</b><span>реакций: лайки, комментарии, пересылки, сохранения</span></div>
+      <div><b>70,3 тыс.</b><span>раз эпизоды переслали друзьям и коллегам</span></div>
+      <div><b>3,1%</b><span>вовлечённость (ER) по всему сезону</span></div>
+    </div>
+
+    <div class="sub-h"><h3>Хиты сезона</h3><span class="kicker">Нажмите, чтобы открыть эпизод</span></div>
+    <div class="hits">
+      <a class="hit" href="#ep6" data-open="ep6"><div class="frame"><img src="f/Hotelki.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Больше всех просмотров</span><span class="hit-n">2,19 млн</span><span class="hit-t">Хотелки заказчицы</span><span class="hit-s">Из них 1,8 млн в VK</span></div></a>
+      <a class="hit" href="#ep4" data-open="ep4"><div class="frame"><img src="f/Dizayner.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Больше всех реакций</span><span class="hit-n">50 тыс.</span><span class="hit-t">Дизайнер под прицелом</span><span class="hit-s">824 тыс. просмотров и 18,6 тыс. пересылок</span></div></a>
+      <a class="hit" href="#ep5" data-open="ep5"><div class="frame"><img src="f/CHGK.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Самый высокий ER</span><span class="hit-n">9,7%</span><span class="hit-t">Что? Где? Когда?</span><span class="hit-s">11,9 тыс. отправок в директ Instagram</span></div></a>
+    </div>
+
+    <div class="sub-h"><h3>По площадкам</h3></div>
+    <div class="plat">
+      <ul class="bars">
+<li class="bar"><span class="bar-n">VK</span><span class="bar-t"><i style="--w:100.0%"></i></span><span class="bar-v">3 769 500</span></li>
+<li class="bar"><span class="bar-n">Instagram</span><span class="bar-t"><i style="--w:41.2%"></i></span><span class="bar-v">1 553 340</span></li>
+<li class="bar"><span class="bar-n">TikTok</span><span class="bar-t"><i style="--w:31.0%"></i></span><span class="bar-v">1 168 939</span></li>
+<li class="bar"><span class="bar-n">YouTube</span><span class="bar-t"><i style="--w:3.2%"></i></span><span class="bar-v">118 979</span></li>
+      </ul>
+      <div>
+        <table class="mini">
+          <thead><tr><th>Площадка</th><th>Реакции</th><th>ER</th></tr></thead>
+          <tbody>
+            <tr class="top"><td>Instagram</td><td>99 578</td><td>6,4%</td></tr>
+            <tr><td>TikTok</td><td>64 223</td><td>5,5%</td></tr>
+            <tr><td>VK</td><td>39 018</td><td>1,0%</td></tr>
+            <tr><td>YouTube</td><td>1 985</td><td>1,7%</td></tr>
+          </tbody>
+        </table>
+        <p class="plat-note">VK собрал больше всего просмотров, а Instagram больше всего реакций: половину от всех за сезон.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="findings">
+  <div class="head"><div><span class="kicker">Что показал сезон</span><h2>Цифры, которые важны бренду</h2></div></div>
+  <div class="finds">
+    <div class="find"><b>×184</b><h3>Сериал вышел за пределы своей аудитории</h3><p>У аккаунтов бренда вместе около 36 тысяч подписчиков, а эпизоды посмотрели 6,63 млн раз. Охват дали рекомендации площадок: сериал увидели люди, которые раньше не знали бренд.</p></div>
+    <div class="find"><b>×23</b><h3>Эпизоды пересылают</h3><p>Пересылок в 23 раза больше, чем комментариев. Мастер узнаёт ситуацию и отправляет ролик своей бригаде. Для имиджевого проекта это главный показатель.</p></div>
+    <div class="find"><b>×27</b><h3>TikTok бренда ожил</h3><p>Прошлые ролики PLITONIT в TikTok набирали в среднем 2,9 тысячи просмотров. Эпизоды сериала набрали в среднем 78 тысяч на аккаунте с 1,5 тысячи подписчиков.</p></div>
+    <div class="find"><b>236 тыс.</b><h3>Один эпизод, разная судьба</h3><p>Столько просмотров у «Что? Где? Когда?» в Instagram, а в VK всего 1,8 тысячи. «Хотелки заказчицы» наоборот собрали 1,8 млн в VK. Поэтому сериал выходил сразу на всех площадках.</p></div>
+    <div class="find wide"><b>×3,1</b><h3>Второй сезон сильнее первого</h3><p>Пилотный сезон из 9 эпизодов собрал 2,10 млн просмотров и 26 тысяч реакций. Второй: 6,63 млн просмотров и 205 тысяч реакций. Реакций стало в 8 раз больше, TikTok вырос в 45 раз. <a href="#season1" data-go="1" style="color:var(--accent)">Посмотреть пилотный сезон</a></p></div>
+  </div>
+</section>
+
+<section class="wrap" id="episodes" style="padding-top:0">
+  <div class="head"><div><span class="kicker">Эпизоды</span><h2>Все 15 эпизодов</h2></div><span class="kicker">Нажмите на эпизод, чтобы раскрыть цифры и ссылки</span></div>
+  <ol class="cards">
+<li class="card" id="ep1">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det1">
+<span class="card-img"><img src="f/Da.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">01</span></span>
+<span class="card-sum"><span class="card-t">Всегда говори «Да»</span><span class="card-v">482 тыс.</span><span class="card-m">ER 4,1%, 20 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det1" hidden>
+<div class="det-date">Эпизод 1, 7 сентября</div>
+<p>Опытный мастер учит напарника главному правилу профессии: на любую просьбу заказчика отвечать «да».</p>
+<div class="det-k"><span><b>481 619</b>просмотров</span><span><b>19 813</b>реакций</span><span><b>2 572</b>пересылок</span><span><b>4,1%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>143 257</b></li><li><span>TikTok</span><b>173 700</b></li><li><span>VK</span><b>162 800</b></li><li><span>YouTube</span><b>1 686</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dc_b8v9Nj2E/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7682813789502197013" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240115" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/EBQ_7AM61tw" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep2">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det2">
+<span class="card-img"><img src="f/Brigada.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">02</span></span>
+<span class="card-sum"><span class="card-t">Бригада</span><span class="card-v">367 тыс.</span><span class="card-m">ER 6,0%, 22 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det2" hidden>
+<div class="det-date">Эпизод 2, 9 сентября</div>
+<p>Узнаваемые сцены из «Бригады», только герои не бандиты, а отделочники на объекте.</p>
+<div class="det-k"><span><b>366 952</b>просмотров</span><span><b>21 876</b>реакций</span><span><b>10 812</b>пересылок</span><span><b>6,0%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>134 673</b></li><li><span>TikTok</span><b>92 600</b></li><li><span>VK</span><b>137 400</b></li><li><span>YouTube</span><b>2 061</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DdDsC6-sbvp/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7683432547103067412" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240121" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/tfWNlGzacr4" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep3">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det3">
+<span class="card-img"><img src="f/Priezzhayut.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">03</span></span>
+<span class="card-sum"><span class="card-t">Как приезжают на замер</span><span class="card-v">485 тыс.</span><span class="card-m">ER 1,0%, 4,6 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det3" hidden>
+<div class="det-date">Эпизод 3, 11 сентября</div>
+<p>Сантехник, электрик, плиточник и сварщик. Каждый приезжает на замер по-своему.</p>
+<div class="det-k"><span><b>484 998</b>просмотров</span><span><b>4 635</b>реакций</span><span><b>1 539</b>пересылок</span><span><b>1,0%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>50 409</b></li><li><span>TikTok</span><b>30 400</b></li><li><span>VK</span><b>385 600</b></li><li><span>YouTube</span><b>18 477</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DdI7s5wtVu8/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7684193934989446420" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240125" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/_rodSwMtD80" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep4">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det4">
+<span class="card-img"><img src="f/Dizayner.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">04</span></span>
+<span class="card-sum"><span class="card-t">Дизайнер под прицелом</span><span class="card-v">824 тыс.</span><span class="card-m">ER 6,0%, 50 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det4" hidden>
+<div class="det-date">Эпизод 4, 14 сентября</div>
+<p>Мастера под прицелом инструментов добиваются от дизайнера извинений за всё сразу.</p>
+<div class="det-k"><span><b>823 639</b>просмотров</span><span><b>49 769</b>реакций</span><span><b>18 573</b>пересылок</span><span><b>6,0%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>383 751</b></li><li><span>TikTok</span><b>358 600</b></li><li><span>VK</span><b>69 100</b></li><li><span>YouTube</span><b>11 984</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DdQtXPRsXBF/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7685411954684595477" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240127" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/czqgkzsfpHw" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep5">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det5">
+<span class="card-img"><img src="f/CHGK.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">05</span></span>
+<span class="card-sum"><span class="card-t">Что? Где? Когда?</span><span class="card-v">287 тыс.</span><span class="card-m">ER 9,7%, 28 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det5" hidden>
+<div class="det-date">Эпизод 5, 18 сентября</div>
+<p>Три мастера за игровым столом прямо на объекте. Вопрос от заказчика: в какие сроки?</p>
+<div class="det-k"><span><b>286 882</b>просмотров</span><span><b>27 763</b>реакций</span><span><b>13 495</b>пересылок</span><span><b>9,7%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>236 454</b></li><li><span>TikTok</span><b>46 700</b></li><li><span>VK</span><b>1 800</b></li><li><span>YouTube</span><b>1 922</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dda9z9fNbGV/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7686784528341470485" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240131" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/QVWWQS96CSY" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep6">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det6">
+<span class="card-img"><img src="f/Hotelki.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">06</span></span>
+<span class="card-sum"><span class="card-t">Хотелки заказчицы</span><span class="card-v">2,19 млн</span><span class="card-m">ER 1,3%, 29 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det6" hidden>
+<div class="det-date">Эпизод 6, 21 сентября</div>
+<p>Заказчица наговаривает пожелания в голосовом, а мастер в красках представляет каждое.</p>
+<div class="det-k"><span><b>2 186 232</b>просмотров</span><span><b>28 661</b>реакций</span><span><b>3 075</b>пересылок</span><span><b>1,3%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>175 790</b></li><li><span>TikTok</span><b>186 300</b></li><li><span>VK</span><b>1 800 000</b></li><li><span>YouTube</span><b>24 018</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DdisOACtdgv/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7688035594571746581" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240136" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/Ddhyl7difBo" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep7">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det7">
+<span class="card-img"><img src="f/Taro.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">07</span></span>
+<span class="card-sum"><span class="card-t">Расклад таро</span><span class="card-v">119 тыс.</span><span class="card-m">ER 6,5%, 7,8 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det7" hidden>
+<div class="det-date">Эпизод 7, 22 сентября</div>
+<p>Прораб раскладывает карты, чтобы заказчица спокойнее приняла рост сметы и сроков.</p>
+<div class="det-k"><span><b>119 362</b>просмотров</span><span><b>7 753</b>реакций</span><span><b>3 953</b>пересылок</span><span><b>6,5%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>102 810</b></li><li><span>TikTok</span><b>5 378</b></li><li><span>VK</span><b>9 800</b></li><li><span>YouTube</span><b>1 338</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Ddn1xAINkML/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7688756789340441908" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240138" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/Jl1EhHiOtdI" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep8">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det8">
+<span class="card-img"><img src="f/Sroki.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">08</span></span>
+<span class="card-sum"><span class="card-t">Что по срокам?</span><span class="card-v">167 тыс.</span><span class="card-m">ER 0,6%, 938 реакций</span></span>
+</button>
+<div class="card-det" id="det8" hidden>
+<div class="det-date">Эпизод 8, 25 сентября</div>
+<p>Простой вопрос о сроках, и мастер созывает совещание своих субличностей.</p>
+<div class="det-k"><span><b>166 767</b>просмотров</span><span><b>938</b>реакций</span><span><b>97</b>пересылок</span><span><b>0,6%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>10 084</b></li><li><span>TikTok</span><b>13 500</b></li><li><span>VK</span><b>141 400</b></li><li><span>YouTube</span><b>1 753</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dds_bJUNeZ5/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7689530428864269588" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240145" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/QA1frdeW6r8" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep9">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det9">
+<span class="card-img"><img src="f/Obekt.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">09</span></span>
+<span class="card-sum"><span class="card-t">Что там на объекте</span><span class="card-v">408 тыс.</span><span class="card-m">ER 4,4%, 18 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det9" hidden>
+<div class="det-date">Эпизод 9, 28 сентября</div>
+<p>Бригадир приезжает на просроченный объект и видит, чем на самом деле заняты мастера.</p>
+<div class="det-k"><span><b>408 159</b>просмотров</span><span><b>18 029</b>реакций</span><span><b>9 676</b>пересылок</span><span><b>4,4%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>85 868</b></li><li><span>TikTok</span><b>135 100</b></li><li><span>VK</span><b>185 600</b></li><li><span>YouTube</span><b>1 581</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dd0txNCsYfo/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7690649245375958293" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240148" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/2-j-C9_aMuo" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep10">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det10">
+<span class="card-img"><img src="f/Perevodchik.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">10</span></span>
+<span class="card-sum"><span class="card-t">Переводчик мастера</span><span class="card-v">170 тыс.</span><span class="card-m">ER 1,1%, 1,9 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det10" hidden>
+<div class="det-date">Эпизод 10, 29 сентября</div>
+<p>Заказчик-айтишник понимает мастера только через переводчик со строительного.</p>
+<div class="det-k"><span><b>170 055</b>просмотров</span><span><b>1 912</b>реакций</span><span><b>356</b>пересылок</span><span><b>1,1%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>25 354</b></li><li><span>TikTok</span><b>14 800</b></li><li><span>VK</span><b>121 600</b></li><li><span>YouTube</span><b>8 157</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dd53V_whXZu/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7691368415717526805" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240150" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/pTTUjeYeKZ8" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep11">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det11">
+<span class="card-img"><img src="f/Uryla.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">11</span></span>
+<span class="card-sum"><span class="card-t">Девушка «урыла» мастера</span><span class="card-v">131 тыс.</span><span class="card-m">ER 2,9%, 3,8 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det11" hidden>
+<div class="det-date">Эпизод 11, 2 октября</div>
+<p>Парень теряется, а девушка, насмотревшись рилсов про ремонт, ставит мастера на место.</p>
+<div class="det-k"><span><b>130 975</b>просмотров</span><span><b>3 830</b>реакций</span><span><b>1 135</b>пересылок</span><span><b>2,9%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>81 832</b></li><li><span>TikTok</span><b>7 055</b></li><li><span>VK</span><b>17 200</b></li><li><span>YouTube</span><b>15 440</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/Dd_A-KzhGuk/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7692100590452706561" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240156" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/G0VJiLhG8eI" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep12">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det12">
+<span class="card-img"><img src="f/Realiti.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">12</span></span>
+<span class="card-sum"><span class="card-t">Строительное реалити</span><span class="card-v">66 тыс.</span><span class="card-m">ER 1,4%, 943 реакций</span></span>
+</button>
+<div class="card-det" id="det12" hidden>
+<div class="det-date">Эпизод 12, 5 октября</div>
+<p>Обычный замер превращается в реалити-шоу с исповедями героев на камеру.</p>
+<div class="det-k"><span><b>65 582</b>просмотров</span><span><b>943</b>реакций</span><span><b>148</b>пересылок</span><span><b>1,4%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>12 653</b></li><li><span>TikTok</span><b>4 589</b></li><li><span>VK</span><b>43 200</b></li><li><span>YouTube</span><b>2 528</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DeGvTJdhgXB/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7693201414952193300" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240163" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/x-8SGO0zNns" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep13">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det13">
+<span class="card-img"><img src="f/Hochu.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">13</span></span>
+<span class="card-sum"><span class="card-t">Я хочу</span><span class="card-v">23 тыс.</span><span class="card-m">ER 1,4%, 324 реакций</span></span>
+</button>
+<div class="card-det" id="det13" hidden>
+<div class="det-date">Эпизод 13, 7 октября</div>
+<p>Заказчица, прораб и сосед делятся мечтами о ремонте. Мужу договорить не дают.</p>
+<div class="det-k"><span><b>22 540</b>просмотров</span><span><b>324</b>реакций</span><span><b>47</b>пересылок</span><span><b>1,4%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>4 610</b></li><li><span>TikTok</span><b>1 243</b></li><li><span>VK</span><b>15 000</b></li><li><span>YouTube</span><b>1 206</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DeL44r7hZDu/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7694183208157482260" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240166" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/3auUIu0pmKE" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep14">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det14">
+<span class="card-img"><img src="f/Slyshat.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">14</span></span>
+<span class="card-sum"><span class="card-t">Как слышат мастера</span><span class="card-v">896 тыс.</span><span class="card-m">ER 2,0%, 18 тыс. реакций</span></span>
+</button>
+<div class="card-det" id="det14" hidden>
+<div class="det-date">Эпизод 14, 9 октября</div>
+<p>Мастер говорит одно и то же, а он и она слышат совершенно разное.</p>
+<div class="det-k"><span><b>895 945</b>просмотров</span><span><b>18 357</b>реакций</span><span><b>4 762</b>пересылок</span><span><b>2,0%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>100 344</b></li><li><span>TikTok</span><b>98 400</b></li><li><span>VK</span><b>670 700</b></li><li><span>YouTube</span><b>25 627</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DeRDNyysAA6/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7694655492219555093" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240169" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/gPYdQa2iLXw" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep15">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det15">
+<span class="card-img"><img src="f/Krestny.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">15</span></span>
+<span class="card-sum"><span class="card-t">Крестный отец</span><span class="card-v">16 тыс.</span><span class="card-m">ER 1,3%, 201 реакций</span></span>
+</button>
+<div class="card-det" id="det15" hidden>
+<div class="det-date">Эпизод 15, 12 октября</div>
+<p>Молодая пара просит отца помочь с ремонтом и получает ответ в духе дона Корлеоне.</p>
+<div class="det-k"><span><b>15 576</b>просмотров</span><span><b>201</b>реакций</span><span><b>31</b>пересылок</span><span><b>1,3%</b>ER</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>5 451</b></li><li><span>TikTok</span><b>574</b></li><li><span>VK</span><b>8 300</b></li><li><span>YouTube</span><b>1 201</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DeYw3FiBby9/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7695810483118525716" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456240172" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/LACMNXZFvcY" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+  </ol>
+</section>
+
+<section class="paper" id="how">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Как снимали</span><h2>На чём построен сериал</h2></div></div>
+    <div class="how">
+      <ul class="focus">
+        <li><h3>Сюжеты из жизни объекта</h3><p>Каждый эпизод начинается с ситуации, знакомой любому мастеру: сроки, сметы, голосовые от заказчиков, дизайнеры без замеров.</p></li>
+        <li><h3>Пародии на то, что знают все</h3><p>«Бригада», «Что? Где? Когда?», «Крестный отец», реалити-шоу. Узнаваемая форма удерживает зрителя с первой секунды.</p></li>
+        <li><h3>Настоящие люди бренда в кадре</h3><p>Главные роли играют сотрудники PLITONIT, им помогают приглашённые актёры. Зритель видит живых мастеров, а не постановочную рекламу.</p></li>
+        <li><h3>Продукт в кадре, не в тексте</h3><p>Форма, мешки и вёдра PLITONIT на объекте. Бренд присутствует в каждой сцене без закадровых призывов купить.</p></li>
+        <li><h3>Выход сразу на всех площадках</h3><p>Instagram, TikTok, VK и YouTube. Каждая площадка выбирает своих фаворитов, и сериал забирает охват везде.</p></li>
+      </ul>
+      <dl class="spec">
+        <div><dt>Съёмка</dt><dd>3 смены, 11–13 августа 2026</dd></div>
+        <div><dt>Эпизоды</dt><dd>15 вертикальных серий</dd></div>
+        <div><dt>В кадре</dt><dd>5–6 сотрудников PLITONIT и 2 приглашённых актёра</dd></div>
+        <div><dt>Выход</dt><dd>С 7 сентября по 12 октября</dd></div>
+        <div class="wide"><dt>Группа</dt><dd>Режиссёр и продюсер, сценарист, оператор, ассистент, SMM, монтажёры</dd></div>
+        <div class="wide"><dt>Этапы под ключ</dt><dd>Идея, сценарии, кастинг, съёмка, монтаж и упаковка. Бренд получил готовые эпизоды и только публиковал.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+</div>
+<div class="sv" id="sv1" hidden>
+<header class="wrap hero">
+  <div class="banner">
+    <img src="s1/mosaic.jpg" alt="" width="1516" height="504">
+    <div class="banner-in">
+      <span class="kicker">Сериал · Сезон 1 · Пилотный</span>
+      <h1>PLITONIT <span>1.0</span></h1>
+      <p class="sub">Ремонт глазами тех, кто его делает</p>
+    </div>
+  </div>
+  <div>
+    <div class="meta" style="margin-top:0"><span>Пилотный сезон</span><span>Комедия</span><span>9 эпизодов</span><span>Вертикальный формат 9:16</span><span>Instagram, VK, YouTube, TikTok</span></div>
+    <div class="story">
+      <p>Пилотный сезон сериала: девять эпизодов, чтобы проверить формат. Бригадир, мастера и заказчики впервые встречаются на объекте: торг за цену квадрата, приёмка с женой заказчика, потерянный инструмент.</p>
+      <p>Первый сезон сериала для PLITONIT, производителя плиточных клеев и строительных смесей с 30-летней историей. Здесь появились постоянные герои: бригадир, плиточник и его напарник, заказчики, которые разбираются в ремонте лучше мастеров.</p>
+    </div>
+  </div>
+  <dl class="credits" style="margin-top:0">
+    <div><dt>Режиссёр и продюсер</dt><dd>Кирилл Карпеев</dd></div>
+    <div><dt>Производство</dt><dd>KK&nbsp;Production</dd></div>
+    <div><dt>Для бренда</dt><dd>PLITONIT</dd></div>
+  </dl>
+  <div class="seasons">
+    <div class="season now"><b>Сезон 1 <em>пилотный</em></b><span>9 эпизодов, 2,10 млн просмотров</span><small>Сейчас открыт</small></div>
+    <button class="season go" type="button" data-go="2"><b>Сезон 2</b><span>15 эпизодов, 6,63 млн просмотров</span><small>Открыть сезон →</small></button>
+    <button class="season soon" type="button" aria-pressed="false"><b>Сезон 3 <span class="s-ic"><svg class="s-clap" viewBox="0 0 24 24"><path d="M4 10h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 10 5.5 5.2a1 1 0 0 1 1.2-.7l12.6 3.4L20 10"/><path d="m9 5.3 1.8 4.2M14 6.6l1.8 3.4"/></svg><svg class="s-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span></b><span class="off">Coming soon</span><span class="on">Сезон в разработке, скоро съёмки</span></button>
+  </div>
+</header>
+
+<section class="paper" id="s1-numbers">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Сезон в цифрах</span><h2>Три недели в ленте</h2></div><span class="kicker">Пилотный сезон</span></div>
+    <div class="big">
+      <div><b>2,10 млн</b><span>просмотров</span></div>
+      <div><b>26,4 тыс.</b><span>реакций: лайки, комментарии, пересылки, сохранения</span></div>
+      <div><b>7,2 тыс.</b><span>раз эпизоды переслали друзьям и коллегам</span></div>
+      <div><b>402 тыс.</b><span>просмотров у главного хита, «Дедукции»</span></div>
+    </div>
+
+    <div class="sub-h"><h3>Хиты сезона</h3><span class="kicker">Нажмите, чтобы открыть эпизод</span></div>
+    <div class="hits">
+      <a class="hit" href="#s1ep1" data-open="s1ep1"><div class="frame"><img src="s1/Dedukciya.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Больше всех просмотров и реакций</span><span class="hit-n">402 тыс.</span><span class="hit-t">Дедукция</span><span class="hit-s">262 тыс. в Instagram и 3,2 тыс. отправок в директ</span></div></a>
+      <a class="hit" href="#s1ep3" data-open="s1ep3"><div class="frame"><img src="s1/Zhena.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Лидер VK</span><span class="hit-n">295 тыс.</span><span class="hit-t">Жена и ремонт</span><span class="hit-s">378 тыс. просмотров на всех площадках</span></div></a>
+      <a class="hit" href="#s1ep7" data-open="s1ep7"><div class="frame"><img src="s1/Prorab.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Второй по реакциям</span><span class="hit-n">3,9 тыс.</span><span class="hit-t">Прораб после психолога</span><span class="hit-s">275 тыс. просмотров и 880 отправок в директ</span></div></a>
+    </div>
+
+    <div class="sub-h"><h3>По площадкам</h3></div>
+    <div class="plat">
+      <ul class="bars">
+<li class="bar"><span class="bar-n">VK</span><span class="bar-t"><i style="--w:100.0%"></i></span><span class="bar-v">1 249 700</span></li>
+<li class="bar"><span class="bar-n">Instagram</span><span class="bar-t"><i style="--w:62.6%"></i></span><span class="bar-v">782 263</span></li>
+<li class="bar"><span class="bar-n">YouTube</span><span class="bar-t"><i style="--w:3.6%"></i></span><span class="bar-v">45 100</span></li>
+<li class="bar"><span class="bar-n">TikTok</span><span class="bar-t"><i style="--w:2.1%"></i></span><span class="bar-v">26 022</span></li>
+      </ul>
+      <div>
+        <table class="mini">
+          <thead><tr><th>Площадка</th><th>Реакции</th><th>Пересылки</th></tr></thead>
+          <tbody>
+            <tr class="top"><td>Instagram</td><td>20 274</td><td>5 735</td></tr>
+            <tr><td>VK</td><td>4 869</td><td>1 193</td></tr>
+            <tr><td>TikTok</td><td>818</td><td>43</td></tr>
+            <tr><td>YouTube</td><td>486</td><td>нет данных</td></tr>
+          </tbody>
+        </table>
+        <p class="plat-note">VK дал больше половины просмотров, а Instagram три четверти всех реакций сезона.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="s1-findings">
+  <div class="head"><div><span class="kicker">Что показал сезон</span><h2>Первый сезон в цифрах</h2></div></div>
+  <div class="finds">
+    <div class="find"><b>2,10 млн</b><h3>Пилот проверил формат</h3><p>9 пилотных эпизодов набрали 2,10 млн просмотров. Формат сразу нашёл свою аудиторию, и бренд заказал второй сезон.</p></div>
+    <div class="find"><b>77%</b><h3>Instagram дал три четверти реакций</h3><p>Здесь зрители лайкали, комментировали и пересылали чаще всего: 20 тысяч реакций из 26 тысяч за сезон и 5,7 тысячи отправок в директ.</p></div>
+    <div class="find"><b>402 тыс.</b><h3>Формат нашёл свой хит</h3><p>«Дедукция», пародия на «Шерлока Холмса» Гая Ричи, собрала 402 тысячи просмотров и 3,2 тысячи отправок в директ. Пародии на кино и тренды стали основой второго сезона.</p></div>
+    <div class="find"><b>×3,1</b><h3>Что было дальше</h3><p>Второй сезон набрал 6,63 млн просмотров, в 3,1 раза больше. Реакций стало в 8 раз больше, TikTok вырос в 45 раз. <a href="#season2" data-go="2" style="color:var(--accent)">Посмотреть второй сезон</a></p></div>
+  </div>
+</section>
+
+<section class="wrap" id="s1-episodes" style="padding-top:0">
+  <div class="head"><div><span class="kicker">Эпизоды</span><h2>Все 9 эпизодов</h2></div><span class="kicker">Нажмите на эпизод, чтобы раскрыть цифры и ссылки</span></div>
+  <ol class="cards">
+<li class="card" id="s1ep1">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det1">
+<span class="card-img"><img src="s1/Dedukciya.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">01</span></span>
+<span class="card-sum"><span class="card-t">Дедукция</span><span class="card-v">402 тыс.</span><span class="card-m">10 тыс. реакций, 3,5 тыс. пересылок</span></span>
+</button>
+<div class="card-det" id="s1det1" hidden>
+<div class="det-date">Эпизод 1, 15 июня</div>
+<p>Мастер и заказчик торгуются о цене за квадрат, а мастер считывает клиента, как Шерлок Холмс у Гая Ричи.</p>
+<div class="det-k"><span><b>401 787</b>просмотров</span><span><b>10 441</b>реакций</span><span><b>3 461</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>262 174</b></li><li><span>TikTok</span><b>1 101</b></li><li><span>VK</span><b>116 100</b></li><li><span>YouTube</span><b>22 319</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DZmR8Hus0YQ/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7659435189864533268" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239914" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/apx1F4bN6Tc" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep2">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det2">
+<span class="card-img"><img src="s1/Shpatel.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">02</span></span>
+<span class="card-sum"><span class="card-t">А где шпатель?</span><span class="card-v">375 тыс.</span><span class="card-m">2,2 тыс. реакций, 152 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det2" hidden>
+<div class="det-date">Эпизод 2, 17 июня</div>
+<p>Мастер ищет шпатель, который лежит прямо перед ним, и заодно находит всё, что терял годами.</p>
+<div class="det-k"><span><b>374 512</b>просмотров</span><span><b>2 243</b>реакций</span><span><b>152</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>154 833</b></li><li><span>TikTok</span><b>912</b></li><li><span>VK</span><b>218 300</b></li><li><span>YouTube</span><b>358</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DZrZpl0MqJe/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7660102382461750549" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239919" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/jSAVOQMQ2w8" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep3">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det3">
+<span class="card-img"><img src="s1/Zhena.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">03</span></span>
+<span class="card-sum"><span class="card-t">Жена и ремонт</span><span class="card-v">378 тыс.</span><span class="card-m">3,1 тыс. реакций, 827 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det3" hidden>
+<div class="det-date">Эпизод 3, 18 июня</div>
+<p>Мастера сдают объект, заказчик доволен. Осталось только показать работу жене.</p>
+<div class="det-k"><span><b>377 668</b>просмотров</span><span><b>3 079</b>реакций</span><span><b>827</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>77 891</b></li><li><span>TikTok</span><b>1 258</b></li><li><span>VK</span><b>294 900</b></li><li><span>YouTube</span><b>3 453</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DZwig6EMP7s/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7661186803369561365" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239921" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/z2r_wZs1qjA" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep4">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det4">
+<span class="card-img"><img src="s1/Samorez.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">04</span></span>
+<span class="card-sum"><span class="card-t">Улетевший саморез</span><span class="card-v">95 тыс.</span><span class="card-m">753 реакций, 86 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det4" hidden>
+<div class="det-date">Эпизод 4, 22 июня</div>
+<p>Саморез падает из рук, и поиски уводят мастера всё дальше от объекта.</p>
+<div class="det-k"><span><b>94 801</b>просмотров</span><span><b>753</b>реакций</span><span><b>86</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>5 933</b></li><li><span>TikTok</span><b>1 015</b></li><li><span>VK</span><b>86 200</b></li><li><span>YouTube</span><b>1 544</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DZ4TXTTMawY/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7667941235415321876" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239925" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/aSh3QmYOyR0" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep5">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det5">
+<span class="card-img"><img src="s1/Ponyatno.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">05</span></span>
+<span class="card-sum"><span class="card-t">Понятно</span><span class="card-v">176 тыс.</span><span class="card-m">2,7 тыс. реакций, 533 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det5" hidden>
+<div class="det-date">Эпизод 5, 23 июня</div>
+<p>Заказчица хочет люкс, но подешевле, и побыстрее, но без спешки. Бригадиру всё понятно.</p>
+<div class="det-k"><span><b>175 782</b>просмотров</span><span><b>2 678</b>реакций</span><span><b>533</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>45 273</b></li><li><span>TikTok</span><b>8 980</b></li><li><span>VK</span><b>119 500</b></li><li><span>YouTube</span><b>1 943</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DZ9eoYNMQCv/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7662383285221412117" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239928" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/XSh_WHh8G5s" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep6">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det6">
+<span class="card-img"><img src="s1/Den.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">06</span></span>
+<span class="card-sum"><span class="card-t">Первый день</span><span class="card-v">186 тыс.</span><span class="card-m">1,7 тыс. реакций, 601 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det6" hidden>
+<div class="det-date">Эпизод 6, 25 июня</div>
+<p>Первый день на лёгком объекте, третий, неделя... С каждым днём объект кажется всё менее лёгким.</p>
+<div class="det-k"><span><b>186 262</b>просмотров</span><span><b>1 694</b>реакций</span><span><b>601</b>пересылок</span><span><b>3</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>69 221</b></li><li><span>TikTok</span><b>не выходил</b></li><li><span>VK</span><b>109 800</b></li><li><span>YouTube</span><b>7 100</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DaCqfL1t-hU/" target="_blank" rel="noopener">Instagram</a><a href="https://vkvideo.ru/clip-1189290_456239932" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/36C_zBHQrJI" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep7">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det7">
+<span class="card-img"><img src="s1/Prorab.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">07</span></span>
+<span class="card-sum"><span class="card-t">Прораб после психолога</span><span class="card-v">275 тыс.</span><span class="card-m">3,9 тыс. реакций, 1,2 тыс. пересылок</span></span>
+</button>
+<div class="card-det" id="s1det7" hidden>
+<div class="det-date">Эпизод 7, 29 июня</div>
+<p>Прораб сходил к психологу и теперь отвечает на проблемы бригады про личные границы и проекции.</p>
+<div class="det-k"><span><b>275 189</b>просмотров</span><span><b>3 893</b>реакций</span><span><b>1 151</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>116 009</b></li><li><span>TikTok</span><b>5 547</b></li><li><span>VK</span><b>150 700</b></li><li><span>YouTube</span><b>2 834</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DaKdPFoMiYv/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7663892862689496340" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239934" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/HyFJRsAjZ7I" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep8">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det8">
+<span class="card-img"><img src="s1/Magniy.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">08</span></span>
+<span class="card-sum"><span class="card-t">Магний</span><span class="card-v">130 тыс.</span><span class="card-m">882 реакций, 105 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det8" hidden>
+<div class="det-date">Эпизод 8, 1 июля</div>
+<p>Заказчик пьёт много магния и спокойно принимает любые новости с объекта. До поры.</p>
+<div class="det-k"><span><b>129 818</b>просмотров</span><span><b>882</b>реакций</span><span><b>105</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>42 345</b></li><li><span>TikTok</span><b>6 243</b></li><li><span>VK</span><b>77 100</b></li><li><span>YouTube</span><b>3 997</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DaPkPoNs7dg/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7664704130056752405" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239941" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/p2-XONBZvlE" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="s1ep9">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="s1det9">
+<span class="card-img"><img src="s1/Affirm.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">09</span></span>
+<span class="card-sum"><span class="card-t">Аффирмация</span><span class="card-v">88 тыс.</span><span class="card-m">784 реакций, 278 пересылок</span></span>
+</button>
+<div class="card-det" id="s1det9" hidden>
+<div class="det-date">Эпизод 9, 3 июля</div>
+<p>Мастер расстилает коврик прямо на объекте и слушает аффирмацию для отделочников.</p>
+<div class="det-k"><span><b>88 318</b>просмотров</span><span><b>784</b>реакций</span><span><b>278</b>пересылок</span><span><b>4</b>площадки</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>8 584</b></li><li><span>TikTok</span><b>966</b></li><li><span>VK</span><b>77 100</b></li><li><span>YouTube</span><b>1 552</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/plitonit_rb/reel/DaUtMS8ONld/" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@plitonit_mc/video/7665404952159833365" target="_blank" rel="noopener">TikTok</a><a href="https://vkvideo.ru/clip-1189290_456239948" target="_blank" rel="noopener">VK</a><a href="https://www.youtube.com/shorts/ITzOfb6UyPE" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+  </ol>
+</section>
+
+<section class="paper" id="s1-how">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Как снимали</span><h2>На чём построен сериал</h2></div></div>
+    <div class="how">
+      <ul class="focus">
+        <li><h3>Сюжеты из жизни объекта</h3><p>Торг за цену квадрата, приёмка с женой заказчика, потерянный инструмент, заказчики, которые хотят люкс, но подешевле.</p></li>
+        <li><h3>Тренды и кино</h3><p>Тренд «Понятно», «Шерлок Холмс» Гая Ричи, аффирмации, «первый день как я...». Знакомая форма цепляет с первой секунды.</p></li>
+        <li><h3>Постоянные герои</h3><p>Бригадир, плиточник, его напарник и заказчики переходят из серии в серию. Зритель узнаёт их и ждёт новых эпизодов.</p></li>
+        <li><h3>Продукт в кадре, не в тексте</h3><p>Форма, мешки и вёдра PLITONIT на объекте. Бренд присутствует в каждой сцене без закадровых призывов купить.</p></li>
+        <li><h3>Выход сразу на всех площадках</h3><p>Instagram, VK, YouTube, TikTok и Rutube. Каждая площадка выбирает своих фаворитов.</p></li>
+      </ul>
+      <dl class="spec">
+        <div><dt>Съёмка</dt><dd>2 смены, 20–21 мая 2026</dd></div>
+        <div><dt>Эпизоды</dt><dd>9 вертикальных серий</dd></div>
+        <div><dt>В кадре</dt><dd>Мастера и приглашённые актёры</dd></div>
+        <div><dt>Выход</dt><dd>С 15 июня по 3 июля</dd></div>
+        <div class="wide"><dt>Группа</dt><dd>Режиссёр и продюсер, сценарист, оператор, ассистент, SMM, монтажёры</dd></div>
+        <div class="wide"><dt>Этапы под ключ</dt><dd>Идея, сценарии, кастинг, съёмка, монтаж и упаковка. Бренд получил готовые эпизоды и только публиковал.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+</div>
+<section class="wrap end" id="credits">
+  <div class="roll">
+    <div><span>Режиссёр и продюсер</span><b>Кирилл Карпеев</b></div>
+    <div><span>Сценарии</span><b>Кирилл Карпеев и команда KK&nbsp;Production</b></div>
+    <div><span>Производство</span><b>KK&nbsp;Production</b></div>
+    <div><span>По заказу</span><b>PLITONIT</b></div>
+  </div>
+  <div class="offer">
+    <h2>Сериал для вашего бренда</h2>
+    <p>KK&nbsp;Production. Идея, сценарии, съёмка и постпродакшн под ключ.</p>
+    <div class="contacts">
+      <a class="contact tg" href="https://t.me/dominolis" target="_blank" rel="noopener"><small>Telegram</small>@dominolis</a>
+      <a class="contact tg" href="https://www.instagram.com/dominolis/" target="_blank" rel="noopener"><small>Instagram</small>@dominolis</a>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap foot">
+  Данные с публичных страниц площадок на 13 октября 2026 года, просмотры VK и реакции VK второго сезона обновлены 22 октября. VK и TikTok часть цифр показывают округлённо. Пересылки Instagram взяты из приложения. Последние эпизоды вышли недавно, их цифры продолжают расти.
+</footer>
+
+<script>
+(function () {
+  function setOpen(card, open) {
+    card.classList.toggle('open', open);
+    card.querySelector('.card-det').hidden = !open;
+    card.querySelector('.card-btn').setAttribute('aria-expanded', String(open));
+  }
+  function toggle(card, force) {
+    var open = force === undefined ? !card.classList.contains('open') : force;
+    document.querySelectorAll('.card.open').forEach(function (c) { if (c !== card) setOpen(c, false); });
+    setOpen(card, open);
+  }
+  document.querySelectorAll('.card-btn').forEach(function (b) {
+    b.addEventListener('click', function () { toggle(b.closest('.card')); });
+  });
+  document.querySelectorAll('[data-open]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var card = document.getElementById(a.dataset.open);
+      if (!card) return;
+      e.preventDefault();
+      toggle(card, true);
+      card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+  document.querySelectorAll('.season.soon').forEach(function (b) {
+    b.addEventListener('click', function () { var on = b.classList.toggle('flip'); b.setAttribute('aria-pressed', String(on)); });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var v1 = document.getElementById('sv1'), v2 = document.getElementById('sv2');
+  function show(n, scroll) {
+    v1.hidden = n !== 1; v2.hidden = n === 1;
+    document.title = n === 1 ? 'PLITONIT 1.0' : 'PLITONIT 2.0';
+    if (scroll) window.scrollTo(0, 0);
+  }
+  function fromHash(scroll) { show(location.hash === '#season1' ? 1 : 2, scroll); }
+  document.querySelectorAll('[data-go]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      var n = el.dataset.go === '1' ? 1 : 2;
+      var h = n === 1 ? '#season1' : '#season2';
+      if (location.hash !== h) location.hash = h; else show(n, true);
+    });
+  });
+  window.addEventListener('hashchange', function () { if (/^#season[12]?$/.test(location.hash) || location.hash === '') fromHash(true); });
+  fromHash(false);
+})();
+</script>
+
+</body></html>
