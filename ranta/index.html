@@ -1,0 +1,926 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ranta Residence</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: страница сериала. Шапка о сериале, светлый блок цифр, выводы, эпизоды, как снимали, титры. */
+:root {
+  --bg: #101114; --surface: #17191d; --line: #2a2d33;
+  --fg: #ecebe6; --soft: #cfcfca; --muted: #9b9da4; --accent: #a796f2; --accent-ink: #5a46c4;
+  --paper: #e5e3dd; --paper-2: #efede8; --paper-fg: #15161a; --paper-muted: #5d5f66; --paper-line: #cfccc4;
+  --display: "Unbounded", "Arial Black", sans-serif;
+  --body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+section { padding-block: clamp(56px, 8vw, 100px); }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; line-height: 1.08; text-wrap: balance; }
+h2 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+img { display: block; max-width: 100%; }
+.kicker { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px 24px; margin-bottom: clamp(28px, 4vw, 44px); }
+.head h2 { margin-top: 12px; }
+.frame { aspect-ratio: 6 / 5; overflow: hidden; border-radius: 6px; background: var(--line); }
+.frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* HERO */
+.hero { padding-block: clamp(32px, 6vw, 72px) clamp(40px, 6vw, 72px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.hero h1 { font-weight: 800; font-size: clamp(38px, 8.4vw, 108px); letter-spacing: -0.035em; line-height: 0.92; margin-top: 14px; }
+.hero h1 span { color: var(--accent); }
+.banner { grid-column: 1 / -1; position: relative; border-radius: 10px; overflow: hidden; min-height: clamp(300px, 40vw, 480px); display: flex; align-items: flex-end; padding: clamp(20px, 3.5vw, 44px); background: var(--surface); }
+.banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7) brightness(0.9); pointer-events: none; user-select: none; }
+.banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(16,17,20,0.97) 0%, rgba(16,17,20,0.82) 38%, rgba(16,17,20,0.35) 75%, rgba(16,17,20,0.2) 100%); }
+.banner-in { position: relative; z-index: 1; }
+.banner .kicker { color: #c9c9c4; }
+.banner .sub { margin-top: 14px; }
+.hero { align-items: start; }
+
+.hero .sub { margin-top: 22px; font-size: clamp(22px, 2.8vw, 32px); font-weight: 600; }
+.meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.meta span { border: 1px solid var(--line); padding: 5px 11px; border-radius: 999px; font-size: 13.5px; color: var(--muted); }
+.story { margin-top: 22px; display: grid; gap: 14px; max-width: 58ch; color: var(--soft); }
+.story p:first-child { color: var(--fg); font-size: 19px; }
+.credits { margin-top: 26px; display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 20px; max-width: 520px; }
+.credits div { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.credits dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.credits dd { margin: 0; font-family: var(--display); font-weight: 600; font-size: 17px; }
+.stills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stills figure { margin: 0; }
+.stills figcaption { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.seasons { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.season { background: var(--surface); padding: 16px 20px; display: grid; gap: 2px; }
+.season b { font-family: var(--display); font-weight: 600; font-size: 16px; }
+.season span { color: var(--muted); font-size: 14.5px; }
+.season.now { background: #1f2126; }
+.season.now b { color: var(--accent); }
+.season { border: 1px solid transparent; transition: background .2s, border-color .2s, color .2s; }
+a.season { text-decoration: none; }
+a.season:hover, button.season:hover { background: #22252b; border-color: #3a3d45; }
+a.season:hover b, button.season:hover b { color: var(--accent); }
+a.season:active, button.season:active { background: rgba(167, 150, 242, 0.16); border-color: var(--accent); }
+.season.now { border-color: rgba(167, 150, 242, 0.45); }
+button.season { all: unset; box-sizing: border-box; display: grid; gap: 2px; background: var(--surface); padding: 16px 20px; cursor: pointer; border: 1px solid transparent; transition: background .2s, border-color .2s; }
+button.season.flip { background: rgba(167, 150, 242, 0.14); border-color: var(--accent); }
+button.season.flip b { color: var(--accent); }
+button.season:focus-visible, a.season:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.season small { display: block; margin-top: 8px; font-family: var(--body); font-size: 12.5px; font-weight: 400; letter-spacing: 0; color: #74777f; }
+.season b em { font-style: normal; font-family: var(--body); font-weight: 500; font-size: 11.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.season b { text-transform: uppercase; letter-spacing: 0.03em; }
+.season b em { text-transform: none; letter-spacing: 0; }
+.season b { display: flex; align-items: center; gap: 8px; }
+.s-ic { display: inline-flex; width: 18px; height: 18px; color: var(--muted); }
+.s-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.soon .s-cal, .soon .on { display: none; }
+.soon.flip .s-clap, .soon.flip .off { display: none; }
+.soon.flip .s-cal, .soon.flip .on { display: inline; }
+.soon.flip .s-ic { color: var(--accent); }
+.soon .on { color: var(--fg); }
+
+/* NUMBERS */
+.paper { background: var(--paper); color: var(--paper-fg); }
+.paper .kicker { color: var(--paper-muted); }
+.big { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--paper-line); }
+.big div { padding: 22px 20px 26px 0; border-right: 1px solid var(--paper-line); min-width: 0; }
+.big div + div { padding-left: 20px; }
+.big div:last-child { border-right: 0; }
+.big b { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(28px, 3.2vw, 42px); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.big span { display: block; margin-top: 10px; font-size: 15px; color: var(--paper-muted); line-height: 1.4; }
+.sub-h { margin-top: clamp(48px, 7vw, 72px); margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; align-items: baseline; }
+.sub-h h3 { font-size: clamp(20px, 2.4vw, 26px); }
+.hits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 20px); }
+.hit { display: flex; flex-direction: column; text-decoration: none; background: var(--paper-2); border: 1px solid var(--paper-line); border-radius: 8px; overflow: hidden; transition: border-color .2s; min-width: 0; }
+.hit:hover { border-color: var(--paper-fg); }
+.hit .frame { border-radius: 0; }
+.hit-b { padding: 16px 18px 18px; display: grid; gap: 6px; }
+.hit-l { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-muted); }
+.hit-n { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 3.4vw, 42px); letter-spacing: -0.02em; line-height: 1; }
+.hit-t { font-weight: 600; font-size: 16px; }
+.hit-s { font-size: 14px; color: var(--paper-muted); }
+.plat { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr); gap: clamp(24px, 5vw, 56px); align-items: start; }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.bar { display: grid; grid-template-columns: 100px minmax(0, 1fr) 110px; align-items: center; gap: 14px; }
+.bar-n { font-weight: 600; }
+.bar-t { height: 24px; background: var(--paper-line); position: relative; border-radius: 2px; overflow: hidden; }
+.bar-t i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--paper-fg); }
+.bar:first-child .bar-t i { background: var(--accent-ink); }
+.bar-v { font-family: var(--mono); font-size: 15px; text-align: right; font-variant-numeric: tabular-nums; }
+.mini { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.mini th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-muted); text-align: right; padding: 0 0 8px 10px; }
+.mini th:first-child, .mini td:first-child { text-align: left; padding-left: 0; }
+.mini td { padding: 11px 0 11px 10px; border-top: 1px solid var(--paper-line); text-align: right; font-size: 15.5px; }
+.mini td:first-child { font-weight: 600; }
+.mini tr.top td:last-child { color: var(--accent-ink); font-weight: 600; }
+.plat-note { margin-top: 14px; font-size: 14px; color: var(--paper-muted); }
+
+/* FINDINGS */
+.finds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.find { background: var(--surface); padding: clamp(22px, 3vw, 34px); display: grid; gap: 10px; align-content: start; }
+.find.wide { grid-column: 1 / -1; }
+.find b { font-family: var(--display); font-weight: 800; font-size: clamp(36px, 4.6vw, 56px); letter-spacing: -0.02em; line-height: 1; color: var(--accent); }
+.find h3 { font-size: 19px; }
+.find p { color: var(--muted); font-size: 15.5px; max-width: 60ch; }
+
+/* EPISODES */
+.cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; grid-auto-flow: dense; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; min-width: 0; transition: border-color .2s; }
+.card:hover { border-color: #474a52; }
+.card-btn { all: unset; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; cursor: pointer; }
+.card-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.card-img { position: relative; display: block; aspect-ratio: 6 / 5; overflow: hidden; background: var(--line); }
+.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-n { position: absolute; left: 0; top: 0; background: rgba(16,17,20,.82); font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--fg); padding: 5px 9px; border-bottom-right-radius: 6px; }
+.card-sum { display: flex; flex-direction: column; gap: 4px; padding: 11px 12px 13px; }
+.card-t { font-weight: 600; font-size: 14.5px; line-height: 1.25; color: var(--fg); min-height: 2.5em; }
+.card-v { font-family: var(--display); font-weight: 600; font-size: 21px; color: var(--fg); line-height: 1.1; }
+.card-m { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.card.open { grid-column: span 3; border-color: var(--accent); display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+.card-det[hidden] { display: none; }
+.card-det { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border-left: 1px solid var(--line); }
+.det-date { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.card-det p { font-size: 14px; color: var(--soft); line-height: 1.45; }
+.det-k { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.det-k span { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; }
+.det-k b { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--fg); }
+.det-p { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 13px; }
+.det-p li { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 5px; }
+.det-p b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.det-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.det-links a { font-family: var(--mono); font-size: 12px; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; color: var(--muted); }
+.det-links a:first-child { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+.det-links a:hover { border-color: var(--accent); color: var(--fg); }
+.det-links a:first-child:hover { color: var(--bg); }
+
+/* HOW */
+.how { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.focus { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.focus li { border-top: 1px solid var(--paper-line); padding-top: 14px; }
+.focus h3 { font-size: 18px; }
+.focus p { margin-top: 6px; color: var(--paper-muted); font-size: 15.5px; }
+.spec { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper-line); border: 1px solid var(--paper-line); border-radius: 8px; overflow: hidden; }
+.spec div { background: var(--paper-2); padding: 16px 18px; min-width: 0; }
+.spec div.wide { grid-column: 1 / -1; }
+.spec dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper-muted); }
+.spec dd { margin: 5px 0 0; font-size: 16px; }
+
+/* END */
+.end { text-align: center; }
+.roll { display: grid; gap: 22px; margin: 0 auto; max-width: 560px; }
+.roll div { display: grid; gap: 4px; }
+.roll span { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.roll b { font-family: var(--display); font-weight: 400; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: 0.02em; }
+.offer { margin: clamp(56px, 8vw, 88px) auto 0; max-width: 720px; border-top: 1px solid var(--line); padding-top: clamp(40px, 6vw, 56px); }
+.offer h2 { font-size: clamp(26px, 3.6vw, 40px); }
+.offer p { margin-top: 14px; color: var(--muted); }
+.contacts { margin-top: 26px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.contact { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 8px 8px 18px; font-weight: 600; text-decoration: none; min-width: 0; }
+.contact small { font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.contact a { text-decoration: none; }
+.tg { padding-right: 18px; }
+.copy { font: 500 12px var(--mono); background: var(--fg); color: var(--bg); border: 0; border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.foot { padding-block: 28px 36px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+@media (max-width: 960px) {
+  .hero, .plat, .how { grid-template-columns: minmax(0, 1fr); }
+  .stills { max-width: 560px; }
+  .big { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .big div:nth-child(2) { border-right: 0; }
+  .big div:nth-child(3) { padding-left: 0; }
+  .big div:nth-child(n+3) { border-top: 1px solid var(--paper-line); }
+  .hits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .seasons, .finds, .hits { grid-template-columns: minmax(0, 1fr); }
+  .credits div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card.open { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr); }
+  .card.open .card-det { border-left: 0; border-top: 1px solid var(--line); }
+  .bar { grid-template-columns: 84px minmax(0, 1fr); }
+  .bar-v { grid-column: 2; text-align: left; margin-top: -8px; }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+  .big b { font-size: 25px; }
+  .banner { min-height: 400px; }
+  .banner::after { background: linear-gradient(to top, rgba(16,17,20,0.97) 0%, rgba(16,17,20,0.9) 55%, rgba(16,17,20,0.6) 100%); }
+  .big div { padding-right: 12px; }
+  .big div + div { padding-left: 12px; }
+  .big div:nth-child(3) { padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Ranta: компактный список из 39 эпизодов */
+.seasons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card-btn { flex-direction: row; align-items: stretch; }
+.card-img { flex: 0 0 38%; aspect-ratio: 6 / 5; }
+.card-sum { justify-content: center; min-width: 0; padding: 10px 12px; }
+.card-t { min-height: 0; font-size: 14px; }
+.card-v { font-size: 19px; }
+.card.open { grid-column: 1 / -1; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+.card.open .card-btn { flex-direction: column; }
+.card.open .card-img { flex: none; width: 100%; }
+.card.open .card-t { font-size: 17px; }
+.card.open .card-v { font-size: 24px; }
+.card-det { padding: 16px 18px 18px; gap: 12px; }
+.card-det p { font-size: 15px; }
+.det-k { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.find a { color: var(--accent); }
+.mini { color: var(--paper-fg); font-size: inherit; }
+/* Отзывы зрителей: карусель плашек */
+.rv-wrap { position: relative; }
+.rv-track { list-style: none; margin: 0; padding: 4px 2px 18px; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; overscroll-behavior-x: contain; }
+.rv-track::-webkit-scrollbar { display: none; }
+.rv { flex: 0 0 min(360px, 84%); scroll-snap-align: start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 12px; transition: transform .35s ease, opacity .35s ease, border-color .2s; }
+.rv.dim { opacity: .45; transform: scale(.97); }
+.rv:hover { border-color: #474a52; }
+.rv-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rv-ava { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 600 14px var(--body); color: #fff; background: linear-gradient(135deg, hsl(var(--h) 55% 45%), hsl(calc(var(--h) + 40) 60% 35%)); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px hsl(var(--h) 60% 55% / .7); }
+.rv-u { font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-ver { width: 15px; height: 15px; flex: none; }
+.rv-t { font-size: 17px; line-height: 1.45; color: var(--fg); flex: 1; }
+.rv-b { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+.rv-like { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.rv-like svg { width: 15px; height: 15px; fill: #ff3040; }
+.rv-b a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); margin-left: auto; text-align: right; }
+.rv-b a:hover { color: var(--fg); border-color: var(--accent); }
+.rv-nav { display: flex; align-items: center; gap: 10px; }
+.rv-btn { all: unset; box-sizing: border-box; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; cursor: pointer; color: var(--fg); transition: border-color .2s, background .2s, opacity .2s; }
+.rv-btn:hover { border-color: var(--accent); background: rgba(167, 150, 242, 0.1); }
+.rv-btn:disabled { opacity: .3; cursor: default; }
+.rv-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rv-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rv-count { font-family: var(--mono); font-size: 13px; color: var(--muted); min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .rv-track { scroll-behavior: auto; } .rv { transition: none; } }
+@media (max-width: 960px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .det-k { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) {
+  .seasons { grid-template-columns: minmax(0, 1fr); }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+  .card-img { flex-basis: 34%; }
+  .card.open { grid-template-columns: minmax(0, 1fr); }
+  .card.open .card-det { border-left: 0; border-top: 1px solid var(--line); }
+  .card.open .card-img { aspect-ratio: 6 / 5; }
+}
+</style>
+<header class="wrap hero">
+  <div class="banner">
+    <img src="st/mosaic.jpg" alt="" width="1516" height="758">
+    <div class="banner-in">
+      <span class="kicker">Сериал · 39 эпизодов · 2025–2026</span>
+      <h1>Ranta <span>Residence</span></h1>
+      <p class="sub">Премиальные строители для премиального ЖК</p>
+    </div>
+  </div>
+  <div>
+    <div class="meta" style="margin-top:0"><span>Комедия</span><span>39 эпизодов</span><span>Вертикальный формат 9:16</span><span>Instagram, YouTube, Дзен</span></div>
+    <div class="story">
+      <p>Как показать премиальность ЖК? Через премиальных строителей: они не матерятся, обедают пастой под соусом песто и обсуждают архитектуру Возрождения.</p>
+      <p>Комедийный сериал о стройке жилого комплекса бизнес-класса в сосновом лесу под Петербургом. Ranta Residence: проект LAR Development в Зеленогорске. Ведение Instagram жилого комплекса: KK&nbsp;Production.</p>
+      <p>Задачи сериала: показать стройку живой, зашить важные смыслы в развлекательный контент, запомниться ценностями ЖК, помочь с выбором квартиры именно здесь и вывести аккаунт за пределы своей аудитории.</p>
+    </div>
+  </div>
+  <dl class="credits" style="margin-top:0">
+    <div><dt>Режиссёр и продюсер</dt><dd>Кирилл Карпеев</dd></div>
+    <div><dt>Производство</dt><dd>KK&nbsp;Production</dd></div>
+    <div><dt>Для бренда</dt><dd>Ranta Residence</dd></div>
+  </dl>
+  <div class="seasons">
+    <div class="season now"><b>Сериал</b><span>39 эпизодов, 22,3 млн просмотров</span><small>Сейчас открыт</small></div>
+    <div class="season"><b>Экспертные ролики</b><span>Вторая часть кейса Ranta Residence</span><small>Страница готовится</small></div>
+  </div>
+</header>
+
+<section class="paper" id="numbers">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Сериал в цифрах</span><h2>Десять месяцев в ленте</h2></div><span class="kicker">С 27 мая 2025 по 18 марта 2026</span></div>
+    <div class="big">
+      <div><b>22,3 млн</b><span>просмотров в Instagram, на YouTube и в Дзене</span></div>
+      <div><b>916 тыс.</b><span>реакций в Instagram: лайки, комментарии, репосты, пересылки</span></div>
+      <div><b>311 тыс.</b><span>раз эпизоды переслали друзьям</span></div>
+      <div><b>7,9%</b><span>вовлечённость (ER) в Instagram</span></div>
+    </div>
+
+    <div class="sub-h"><h3>Хиты сериала</h3><span class="kicker">Нажмите, чтобы открыть эпизод</span></div>
+    <div class="hits">
+<a class="hit" href="#ep23" data-open="ep23"><div class="frame"><img src="st/DKKDKCPuc4t.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Больше всех просмотров</span><span class="hit-n">12,7 млн</span><span class="hit-t">Если бы строители не матерились</span><span class="hit-s">4,29 млн в Instagram и 8,32 млн на YouTube</span></div></a>
+<a class="hit" href="#ep11" data-open="ep11"><div class="frame"><img src="st/DVd5ml4jJxn.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Пересылок больше, чем лайков</span><span class="hit-n">44 тыс.</span><span class="hit-t">Прораб и Архитектор</span><span class="hit-s">1,19 млн просмотров и 39 тыс. лайков</span></div></a>
+<a class="hit" href="#ep29" data-open="ep29"><div class="frame"><img src="st/DTzm7SGjL5w.jpg" alt="" width="600" height="500"></div><div class="hit-b"><span class="hit-l">Самый высокий ER</span><span class="hit-n">12,5%</span><span class="hit-t">Прораб ЖК-2026, версия 3.2</span><span class="hit-s">12 тыс. пересылок при 224 тыс. просмотров</span></div></a>
+    </div>
+
+    <div class="sub-h"><h3>По площадкам</h3></div>
+    <div class="plat">
+      <ul class="bars">
+<li class="bar"><span class="bar-n">Instagram</span><span class="bar-t"><i style="--w:100.0%"></i></span><span class="bar-v">11 600 833</span></li>
+<li class="bar"><span class="bar-n">YouTube</span><span class="bar-t"><i style="--w:88.8%"></i></span><span class="bar-v">10 299 208</span></li>
+<li class="bar"><span class="bar-n">Дзен</span><span class="bar-t"><i style="--w:3.6%"></i></span><span class="bar-v">413 683</span></li>
+      </ul>
+      <div>
+        <table class="mini">
+          <thead><tr><th>Площадка</th><th>Эпизодов</th><th>В среднем</th></tr></thead>
+          <tbody>
+            <tr class="top"><td>Instagram</td><td>39</td><td>297 тыс.</td></tr>
+            <tr><td>YouTube</td><td>23</td><td>448 тыс.</td></tr>
+            <tr><td>Дзен</td><td>23</td><td>18 тыс.</td></tr>
+          </tbody>
+        </table>
+        <p class="plat-note">Instagram главная площадка сериала: все 39 эпизодов и 916 тыс. реакций.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="findings">
+  <div class="head"><div><span class="kicker">Что показал сериал</span><h2>Цифры, которые важны бренду</h2></div></div>
+  <div class="finds">
+    <div class="find"><b>×43</b><h3>Instagram вырос с 300 до 13 тысяч</h3><p>Когда сериал стартовал, у Instagram жилого комплекса было около 300 подписчиков. Эпизоды посмотрели 11,6 млн раз, и аккаунт вырос до 13 тысяч.</p></div>
+    <div class="find"><b>×42</b><h3>YouTube вырос со 100 до 4,2 тысячи</h3><p>Канал LAR Development начинал примерно со 100 подписчиков, сейчас их 4,25 тысячи. Из 11,2 млн просмотров канала 10,3 млн дали эпизоды сериала.</p></div>
+    <div class="find wide"><b>×2,6</b><h3>Вовлечённость, нетипичная для недвижимости</h3><p>ER сериала в Instagram 7,9%. Средний ER рилс в недвижимости около 3% по данным Hootsuite. Даже без пересылок, только по лайкам, комментариям и репостам, сериал держит 5,2%.</p></div>
+    <div class="find"><b>×40</b><h3>Эпизоды пересылают</h3><p>Пересылок в 40 раз больше, чем комментариев: 311 тыс. против 7,8 тыс.. Зритель узнаёт ситуацию и отправляет эпизод тем, кто поймёт.</p></div>
+    <div class="find"><b>97%</b><h3>Почти все зрители новые</h3><p>По статистике Instagram 96–98% просмотров крупных эпизодов пришли от людей, которые не были подписаны на ЖК. Каждый такой эпизод приводил около тысячи новых подписчиков.</p></div>
+    <div class="find wide"><b>39</b><h3>Аналогов на рынке нет</h3><p>Застройщики снимают обзоры квартир и экспертные ролики. Комедийный сериал с постоянной труппой героев, 39 эпизодами и пародиями на большое кино есть только у Ranta Residence.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="reviews" style="padding-top:0">
+  <div class="head"><div><span class="kicker">Что пишут зрители</span><h2>Комментарии под эпизодами</h2></div>
+    <div class="rv-nav"><button class="rv-btn" type="button" data-dir="-1" aria-label="Предыдущий комментарий"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="rv-count" aria-live="polite">1 / 11</span><button class="rv-btn" type="button" data-dir="1" aria-label="Следующий комментарий"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+  </div>
+  <div class="rv-wrap"><ul class="rv-track" aria-roledescription="carousel" aria-label="Комментарии зрителей" tabindex="0">
+<li class="rv" aria-roledescription="slide" aria-label="1 из 11"><div class="rv-top"><span class="rv-ava" style="--h:215">O</span><span class="rv-u">onetwotrip<svg class="rv-ver" viewBox="0 0 24 24" aria-label="Подтверждённый аккаунт"><path d="M12 1.5l2.6 1.9 3.2-.1 1 3 2.6 1.9-1 3.1 1 3-2.6 1.9-1 3-3.2-.1L12 22.5l-2.6-1.9-3.2.1-1-3-2.6-1.9 1-3-1-3.1 2.6-1.9 1-3 3.2.1z" fill="#4f9cf9"/><path d="M8 12.3l2.6 2.6L16.2 9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><p class="rv-t">Если бы за рилсы выдавали «Оскар», у вас были бы все шансы!</p><div class="rv-b"><a href="#ep1" data-open="ep1">Только и разговоров, что о море</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="2 из 11"><div class="rv-top"><span class="rv-ava" style="--h:306">P</span><span class="rv-u">polina_denisova_kinetika</span></div><p class="rv-t">Мужики, как вас уговорили сниматься 😂</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>654</span><a href="#ep26" data-open="ep26">Стройка в стиле Friends</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="3 из 11"><div class="rv-top"><span class="rv-ava" style="--h:139">A</span><span class="rv-u">_anna_anetka_</span></div><p class="rv-t">Почему строители играют и говорят лучше, чем многие актёры? 👏</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>585</span><a href="#ep26" data-open="ep26">Стройка в стиле Friends</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="4 из 11"><div class="rv-top"><span class="rv-ava" style="--h:117">K</span><span class="rv-u">kot_sochinskiy</span></div><p class="rv-t">🔥🔥🔥 Идея и реализация топ</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>490</span><a href="#ep29" data-open="ep29">Прораб ЖК-2026, версия 3.2</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="5 из 11"><div class="rv-top"><span class="rv-ava" style="--h:44">P</span><span class="rv-u">playerok_inst</span></div><p class="rv-t">Сериал «Стройка» от Netflix</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>426</span><a href="#ep14" data-open="ep14">То самое голосовое от начальства</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="6 из 11"><div class="rv-top"><span class="rv-ava" style="--h:1">V</span><span class="rv-u">votarhall</span></div><p class="rv-t">Человечество не заслужило такую рекламу, но мы счастливы, что получили её</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>372</span><a href="#ep29" data-open="ep29">Прораб ЖК-2026, версия 3.2</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="7 из 11"><div class="rv-top"><span class="rv-ava" style="--h:21">L</span><span class="rv-u">lizamandrova_new</span></div><p class="rv-t">Ребят, ну это просто невероятно! Залипла на все ролики. Команде видеопроизводства браво</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>370</span><a href="#ep17" data-open="ep17">О чём они разговаривают</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="8 из 11"><div class="rv-top"><span class="rv-ava" style="--h:253">G</span><span class="rv-u">gosteva.ai</span></div><p class="rv-t">Это очень круто и прикольно снято, мужчины молодцы! 👏🔥</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>208</span><a href="#ep26" data-open="ep26">Стройка в стиле Friends</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="9 из 11"><div class="rv-top"><span class="rv-ava" style="--h:120">E</span><span class="rv-u">elen_yak</span></div><p class="rv-t">Это реклама или мировой кино-шедевр? Я не пойму!</p><div class="rv-b"><a href="#ep11" data-open="ep11">Прораб и Архитектор</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="10 из 11"><div class="rv-top"><span class="rv-ava" style="--h:322">L</span><span class="rv-u">lagun99shark</span></div><p class="rv-t">Очень крутой подход к рекламе, огонь 🔥</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>79</span><a href="#ep14" data-open="ep14">То самое голосовое от начальства</a></div></li>
+<li class="rv" aria-roledescription="slide" aria-label="11 из 11"><div class="rv-top"><span class="rv-ava" style="--h:106">E</span><span class="rv-u">elenaiganova</span></div><p class="rv-t">У вас самый о***вший контент во всём интернете 🔥🔥🔥</p><div class="rv-b"><span class="rv-like"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2 0 3.4 1.1 5.1 3 1.7-1.9 3.1-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>50</span><a href="#ep35" data-open="ep35">Прораб, который начинал в 90-х</a></div></li>
+  </ul></div>
+</section>
+
+<section class="wrap" id="episodes" style="padding-top:0">
+  <div class="head"><div><span class="kicker">Эпизоды</span><h2>Все 39 эпизодов</h2></div><span class="kicker">Нажмите на эпизод, чтобы раскрыть цифры и ссылки</span></div>
+  <ol class="cards">
+<li class="card" id="ep1">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det1">
+<span class="card-img"><img src="st/DN8AyjTCC9I.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">01</span></span>
+<span class="card-sum"><span class="card-t">Только и разговоров, что о море</span><span class="card-v">421 тыс.</span><span class="card-m">ER 11,7% в Instagram</span></span>
+</button>
+<div class="card-det" id="det1" hidden>
+<div class="det-date">Эпизод 1, 29 августа 2025</div>
+<p>Пародия на «Достучаться до небес». Паша никогда не был на море, а до залива от ЖК всего 10 минут.</p>
+<div class="det-k"><span><b>421 409</b>просмотров</span><span><b>48 673</b>реакций в Instagram</span><span><b>13 300</b>пересылок</span><span><b>11,7%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>417 519</b></li><li><span>Дзен</span><b>3 890</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DN8AyjTCC9I/" target="_blank" rel="noopener">Instagram</a><a href="https://dzen.ru/shorts/6949aae3a074b95f246b4e27" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep2">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det2">
+<span class="card-img"><img src="st/DKPRcCnIxjJ.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">02</span></span>
+<span class="card-sum"><span class="card-t">Обед на стройке</span><span class="card-v">409 тыс.</span><span class="card-m">ER 6,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det2" hidden>
+<div class="det-date">Эпизод 2, 29 мая 2025</div>
+<p>Обычный обед строителей ЖК бизнес-класса: блины, соус песто и манеры как в ресторане.</p>
+<div class="det-k"><span><b>409 056</b>просмотров</span><span><b>12 586</b>реакций в Instagram</span><span><b>3 513</b>пересылок</span><span><b>6,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>202 470</b></li><li><span>YouTube</span><b>185 826</b></li><li><span>Дзен</span><b>20 760</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DKPRcCnIxjJ/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/Bc3_MZM4QAw" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/68de4d7ea4eb7f5328ca9200" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep3">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det3">
+<span class="card-img"><img src="st/DKZws-zIKZL.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">03</span></span>
+<span class="card-sum"><span class="card-t">Николай Николаевич</span><span class="card-v">85 тыс.</span><span class="card-m">ER 2,9% в Instagram</span></span>
+</button>
+<div class="card-det" id="det3" hidden>
+<div class="det-date">Эпизод 3, 2 июня 2025</div>
+<p>Строители обсуждают, куда вложиться надёжно и с перспективой. Ответ у них один.</p>
+<div class="det-k"><span><b>85 226</b>просмотров</span><span><b>355</b>реакций в Instagram</span><span><b>68</b>пересылок</span><span><b>2,9%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>12 376</b></li><li><span>YouTube</span><b>19 518</b></li><li><span>Дзен</span><b>53 332</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DKZws-zIKZL/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/pOrfT-hWWVw" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/68de4eb598e41005c56c5971" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep4">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det4">
+<span class="card-img"><img src="st/DNXotAAISsR.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">04</span></span>
+<span class="card-sum"><span class="card-t">Строители обычного ЖК</span><span class="card-v">41 тыс.</span><span class="card-m">ER 4,6% в Instagram</span></span>
+</button>
+<div class="card-det" id="det4" hidden>
+<div class="det-date">Эпизод 4, 15 августа 2025</div>
+<p>Строители обычного ЖК и строители бизнес-класса. Даже чаепитие проходит по-разному.</p>
+<div class="det-k"><span><b>40 866</b>просмотров</span><span><b>555</b>реакций в Instagram</span><span><b>168</b>пересылок</span><span><b>4,6%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>12 190</b></li><li><span>YouTube</span><b>4 276</b></li><li><span>Дзен</span><b>24 400</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DNXotAAISsR/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/BqryzB0di7g" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/69280e9f3575d75db392b9d7" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep5">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det5">
+<span class="card-img"><img src="st/DL2RQdboc3V.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">05</span></span>
+<span class="card-sum"><span class="card-t">Прораб после терапии у психолога</span><span class="card-v">175 тыс.</span><span class="card-m">ER 4,9% в Instagram</span></span>
+</button>
+<div class="card-det" id="det5" hidden>
+<div class="det-date">Эпизод 5, 8 июля 2025</div>
+<p>На угрозы взбешённого рабочего прораб отвечает похвалой в стиле психотерапии. Позже эту идею развили для PLITONIT.</p>
+<div class="det-k"><span><b>175 459</b>просмотров</span><span><b>7 911</b>реакций в Instagram</span><span><b>2 195</b>пересылок</span><span><b>4,9%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>161 965</b></li><li><span>YouTube</span><b>13 479</b></li><li><span>Дзен</span><b>15</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DL2RQdboc3V/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/rECJpPnWM7s" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6949a10ca9a9f95b4bceea33" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep6">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det6">
+<span class="card-img"><img src="st/DM43pdyontG.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">06</span></span>
+<span class="card-sum"><span class="card-t">Кирпичная сингулярность</span><span class="card-v">2,63 млн</span><span class="card-m">ER 5,7% в Instagram</span></span>
+</button>
+<div class="card-det" id="det6" hidden>
+<div class="det-date">Эпизод 6, 3 августа 2025</div>
+<p>Кирпич не встаёт в кладку, и прораб с серьёзным лицом рассказывает лженаучную легенду в духе документалок про древние цивилизации.</p>
+<div class="det-k"><span><b>2 631 478</b>просмотров</span><span><b>55 392</b>реакций в Instagram</span><span><b>8 665</b>пересылок</span><span><b>5,7%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>966 522</b></li><li><span>YouTube</span><b>1 657 996</b></li><li><span>Дзен</span><b>6 960</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DM43pdyontG/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/Ng00OoTtHDM" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/69280f44952f836fe3d2d56b" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep7">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det7">
+<span class="card-img"><img src="st/DOV_VHhCLFW.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">07</span></span>
+<span class="card-sum"><span class="card-t">Йога для осознанных строителей</span><span class="card-v">161 тыс.</span><span class="card-m">ER 9,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det7" hidden>
+<div class="det-date">Эпизод 7, 8 сентября 2025</div>
+<p>Прораб проводит йогу на объекте, а рабочий оказывается настоящим экспертом и поправляет его.</p>
+<div class="det-k"><span><b>160 557</b>просмотров</span><span><b>14 420</b>реакций в Instagram</span><span><b>5 053</b>пересылок</span><span><b>9,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>156 412</b></li><li><span>YouTube</span><b>3 557</b></li><li><span>Дзен</span><b>588</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DOV_VHhCLFW/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/76xNe0HeECE" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/69280fca3575d75db3947be0" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep8">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det8">
+<span class="card-img"><img src="st/DPQzBf4CLDt.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">08</span></span>
+<span class="card-sum"><span class="card-t">Аффирмации для прорабов</span><span class="card-v">362 тыс.</span><span class="card-m">ER 8,5% в Instagram</span></span>
+</button>
+<div class="card-det" id="det8" hidden>
+<div class="det-date">Эпизод 8, 1 октября 2025</div>
+<p>Прораб настраивается на смену аффирмациями. Настрой напрямую влияет на качество работы.</p>
+<div class="det-k"><span><b>361 979</b>просмотров</span><span><b>30 426</b>реакций в Instagram</span><span><b>16 100</b>пересылок</span><span><b>8,5%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>358 013</b></li><li><span>YouTube</span><b>3 955</b></li><li><span>Дзен</span><b>11</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DPQzBf4CLDt/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/INY9DlPlouk" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6928181d75567074cee73928" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep9">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det9">
+<span class="card-img"><img src="st/DKezUjqIgrx.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">09</span></span>
+<span class="card-sum"><span class="card-t">Русский язык богат</span><span class="card-v">30 тыс.</span><span class="card-m">ER 1,6% в Instagram</span></span>
+</button>
+<div class="card-det" id="det9" hidden>
+<div class="det-date">Эпизод 9, 4 июня 2025</div>
+<p>Четыре секунды у офиса продаж. Русский язык богат, особенно на стройке.</p>
+<div class="det-k"><span><b>30 160</b>просмотров</span><span><b>245</b>реакций в Instagram</span><span><b>70</b>пересылок</span><span><b>1,6%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>15 546</b></li><li><span>YouTube</span><b>14 614</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DKezUjqIgrx/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/jsGoQtap1Gc" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+<li class="card" id="ep10">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det10">
+<span class="card-img"><img src="st/DMcsHG8IB5l.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">10</span></span>
+<span class="card-sum"><span class="card-t">То самое голосовое от жены</span><span class="card-v">50 тыс.</span><span class="card-m">ER 2,8% в Instagram</span></span>
+</button>
+<div class="card-det" id="det10" hidden>
+<div class="det-date">Эпизод 10, 23 июля 2025</div>
+<p>Строитель слушает голосовое от жены прямо на смене.</p>
+<div class="det-k"><span><b>50 395</b>просмотров</span><span><b>899</b>реакций в Instagram</span><span><b>423</b>пересылок</span><span><b>2,8%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>31 615</b></li><li><span>YouTube</span><b>1 124</b></li><li><span>Дзен</span><b>17 656</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DMcsHG8IB5l/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/XbdCJ7HTy8E" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/693a917544aa4b6f3f4c037b" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep11">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det11">
+<span class="card-img"><img src="st/DVd5ml4jJxn.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">11</span></span>
+<span class="card-sum"><span class="card-t">Прораб и Архитектор</span><span class="card-v">1,19 млн</span><span class="card-m">ER 7,1% в Instagram</span></span>
+</button>
+<div class="card-det" id="det11" hidden>
+<div class="det-date">Эпизод 11, 4 марта 2026</div>
+<p>Пародия на сцену с Архитектором из «Матрицы»: выбор таблетки стал выбором каски. Сделано через ИИ-замену лиц.</p>
+<div class="det-k"><span><b>1 191 508</b>просмотров</span><span><b>84 830</b>реакций в Instagram</span><span><b>44 500</b>пересылок</span><span><b>7,1%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>1 191 508</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DVd5ml4jJxn/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep12">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det12">
+<span class="card-img"><img src="st/DMpcN98oP94.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">12</span></span>
+<span class="card-sum"><span class="card-t">Надо брать</span><span class="card-v">7 тыс.</span><span class="card-m">ER 3,0% в Instagram</span></span>
+</button>
+<div class="card-det" id="det12" hidden>
+<div class="det-date">Эпизод 12, 28 июля 2025</div>
+<p>Строитель рассуждает о ЖК вслух и сам себя убеждает: надо брать.</p>
+<div class="det-k"><span><b>6 961</b>просмотров</span><span><b>209</b>реакций в Instagram</span><span><b>78</b>пересылок</span><span><b>3,0%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>6 961</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DMpcN98oP94/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep13">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det13">
+<span class="card-img"><img src="st/DNNuGYQIsTe.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">13</span></span>
+<span class="card-sum"><span class="card-t">Прораб премиум ЖК</span><span class="card-v">48 тыс.</span><span class="card-m">ER 3,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det13" hidden>
+<div class="det-date">Эпизод 13, 11 августа 2025</div>
+<p>Обычный прораб и прораб премиального ЖК: одна стройка, разный подход.</p>
+<div class="det-k"><span><b>47 807</b>просмотров</span><span><b>437</b>реакций в Instagram</span><span><b>82</b>пересылок</span><span><b>3,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>13 721</b></li><li><span>YouTube</span><b>4 775</b></li><li><span>Дзен</span><b>29 311</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DNNuGYQIsTe/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/alGQwWjmRu0" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/69281347bfc6f0562f4b4540" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep14">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det14">
+<span class="card-img"><img src="st/DUx8SdbjDJT.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">14</span></span>
+<span class="card-sum"><span class="card-t">То самое голосовое от начальства</span><span class="card-v">1,06 млн</span><span class="card-m">ER 8,7% в Instagram</span></span>
+</button>
+<div class="card-det" id="det14" hidden>
+<div class="det-date">Эпизод 14, 15 февраля 2026</div>
+<p>Начальство в голосовом требует снять «что-нибудь серьёзное». Герои буквально исполняют каждый пункт, и выходит список преимуществ ЖК.</p>
+<div class="det-k"><span><b>1 063 371</b>просмотров</span><span><b>92 640</b>реакций в Instagram</span><span><b>16 000</b>пересылок</span><span><b>8,7%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>1 063 371</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DUx8SdbjDJT/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep15">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det15">
+<span class="card-img"><img src="st/DNqBrZpo7Eh.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">15</span></span>
+<span class="card-sum"><span class="card-t">Маленький прораб</span><span class="card-v">14 тыс.</span><span class="card-m">ER 4,4% в Instagram</span></span>
+</button>
+<div class="card-det" id="det15" hidden>
+<div class="det-date">Эпизод 15, 22 августа 2025</div>
+<p>Ребёнок в каске и взрослый говорят о будущем квадратного метра.</p>
+<div class="det-k"><span><b>13 932</b>просмотров</span><span><b>618</b>реакций в Instagram</span><span><b>201</b>пересылок</span><span><b>4,4%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>13 932</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DNqBrZpo7Eh/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep16">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det16">
+<span class="card-img"><img src="st/DOOBiV3CF7p.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">16</span></span>
+<span class="card-sum"><span class="card-t">Новый дом</span><span class="card-v">8 тыс.</span><span class="card-m">ER 1,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det16" hidden>
+<div class="det-date">Эпизод 16, 5 сентября 2025</div>
+<p>Бесценное ощущение: приходишь осматривать свой новый дом, и сразу появляются образы будущего.</p>
+<div class="det-k"><span><b>7 985</b>просмотров</span><span><b>92</b>реакций в Instagram</span><span><b>16</b>пересылок</span><span><b>1,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>7 985</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DOOBiV3CF7p/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep17">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det17">
+<span class="card-img"><img src="st/DUaglJVjIl2.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">17</span></span>
+<span class="card-sum"><span class="card-t">О чём они разговаривают</span><span class="card-v">819 тыс.</span><span class="card-m">ER 8,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det17" hidden>
+<div class="det-date">Эпизод 17, 6 февраля 2026</div>
+<p>Двое строителей гадают, о чём говорят рабочие-мигранты. А те обсуждают архитектуру Возрождения.</p>
+<div class="det-k"><span><b>818 503</b>просмотров</span><span><b>67 517</b>реакций в Instagram</span><span><b>22 400</b>пересылок</span><span><b>8,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>811 298</b></li><li><span>YouTube</span><b>3 437</b></li><li><span>Дзен</span><b>3 768</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DUaglJVjIl2/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/G0weBXd7NIE" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6989d93bcb9ad149f3a3b0c2" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep18">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det18">
+<span class="card-img"><img src="st/DOn6E5XiMZe.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">18</span></span>
+<span class="card-sum"><span class="card-t">Как снимают контент</span><span class="card-v">20 тыс.</span><span class="card-m">ER 6,1% в Instagram</span></span>
+</button>
+<div class="card-det" id="det18" hidden>
+<div class="det-date">Эпизод 18, 15 сентября 2025</div>
+<p>Закулисье съёмок «Йоги»: как строители снимают контент.</p>
+<div class="det-k"><span><b>20 246</b>просмотров</span><span><b>777</b>реакций в Instagram</span><span><b>181</b>пересылок</span><span><b>6,1%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>12 840</b></li><li><span>YouTube</span><b>3 867</b></li><li><span>Дзен</span><b>3 539</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DOn6E5XiMZe/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/pwQ2yigEKMY" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/69499d22cf7b1d7f5539d260" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep19">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det19">
+<span class="card-img"><img src="st/DOx1UnIiH7H.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">19</span></span>
+<span class="card-sum"><span class="card-t">Быт проверять</span><span class="card-v">59 тыс.</span><span class="card-m">ER 5,1% в Instagram</span></span>
+</button>
+<div class="card-det" id="det19" hidden>
+<div class="det-date">Эпизод 19, 19 сентября 2025</div>
+<p>Рабочий пропал с объекта, а он в халате с чашкой любуется видом из будущей квартиры.</p>
+<div class="det-k"><span><b>58 755</b>просмотров</span><span><b>1 895</b>реакций в Instagram</span><span><b>567</b>пересылок</span><span><b>5,1%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>37 398</b></li><li><span>YouTube</span><b>859</b></li><li><span>Дзен</span><b>20 498</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DOx1UnIiH7H/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/mZ7lXODhPkI" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6949a96e8433a617aa173a7f" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep20">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det20">
+<span class="card-img"><img src="st/DS14mVrDMSg.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">20</span></span>
+<span class="card-sum"><span class="card-t">Новый год в офисе и на стройке</span><span class="card-v">691 тыс.</span><span class="card-m">ER 2,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det20" hidden>
+<div class="det-date">Эпизод 20, 29 декабря 2025</div>
+<p>Одна сцена дважды: в тёплом офисе на корпоративе и в метель на стройке.</p>
+<div class="det-k"><span><b>690 739</b>просмотров</span><span><b>14 574</b>реакций в Instagram</span><span><b>3 794</b>пересылок</span><span><b>2,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>642 414</b></li><li><span>YouTube</span><b>40 540</b></li><li><span>Дзен</span><b>7 785</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DS14mVrDMSg/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/b0ertiyh78Y" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6956bc62179b5741ac8848f7" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep21">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det21">
+<span class="card-img"><img src="st/DPBg1WWCI4P.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">21</span></span>
+<span class="card-sum"><span class="card-t">Видеосообщение от Серёги</span><span class="card-v">73 тыс.</span><span class="card-m">ER 4,4% в Instagram</span></span>
+</button>
+<div class="card-det" id="det21" hidden>
+<div class="det-date">Эпизод 21, 25 сентября 2025</div>
+<p>Новичок записывает кружок о своём первом дне на стройке.</p>
+<div class="det-k"><span><b>72 978</b>просмотров</span><span><b>1 577</b>реакций в Instagram</span><span><b>487</b>пересылок</span><span><b>4,4%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>35 713</b></li><li><span>YouTube</span><b>6 310</b></li><li><span>Дзен</span><b>30 955</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DPBg1WWCI4P/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/5JjEWpKtgGk" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6928103d17d70a388ae659a3" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep22">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det22">
+<span class="card-img"><img src="st/DPl90Q5DGln.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">22</span></span>
+<span class="card-sum"><span class="card-t">Наблюдать, как строится</span><span class="card-v">29 тыс.</span><span class="card-m">ER 4,7% в Instagram</span></span>
+</button>
+<div class="card-det" id="det22" hidden>
+<div class="det-date">Эпизод 22, 9 октября 2025</div>
+<p>Отец с сыном смотрят, как растёт один из самых интересных проектов.</p>
+<div class="det-k"><span><b>29 099</b>просмотров</span><span><b>1 180</b>реакций в Instagram</span><span><b>568</b>пересылок</span><span><b>4,7%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>25 069</b></li><li><span>YouTube</span><b>1 846</b></li><li><span>Дзен</span><b>2 184</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DPl90Q5DGln/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/L1JAHDLVCzU" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6949aaeb8433a617aa189a39" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep23">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det23">
+<span class="card-img"><img src="st/DKKDKCPuc4t.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">23</span></span>
+<span class="card-sum"><span class="card-t">Если бы строители не матерились</span><span class="card-v">12,7 млн</span><span class="card-m">ER 9,0% в Instagram</span></span>
+</button>
+<div class="card-det" id="det23" hidden>
+<div class="det-date">Эпизод 23, 27 мая 2025</div>
+<p>Авария на стройке, после которой любой выругался бы. Герои говорят с матерной интонацией, но вежливыми словами.</p>
+<div class="det-k"><span><b>12 716 347</b>просмотров</span><span><b>386 999</b>реакций в Instagram</span><span><b>142 000</b>пересылок</span><span><b>9,0%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>4 292 944</b></li><li><span>YouTube</span><b>8 318 483</b></li><li><span>Дзен</span><b>104 920</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DKKDKCPuc4t/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/hKr_JfkkEFQ" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/68de4e20808b600e175c9693" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep24">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det24">
+<span class="card-img"><img src="st/DSAbrM6jPYG.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">24</span></span>
+<span class="card-sum"><span class="card-t">Обещанный отпуск</span><span class="card-v">16 тыс.</span><span class="card-m">ER 4,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det24" hidden>
+<div class="det-date">Эпизод 24, 8 декабря 2025</div>
+<p>Рабочие требуют обещанный отпуск, а начальник откупается всё более нелепыми подарками.</p>
+<div class="det-k"><span><b>15 953</b>просмотров</span><span><b>680</b>реакций в Instagram</span><span><b>172</b>пересылок</span><span><b>4,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>15 953</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DSAbrM6jPYG/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep25">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det25">
+<span class="card-img"><img src="st/DSFHNRnDBPk.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">25</span></span>
+<span class="card-sum"><span class="card-t">Soft-скиллз</span><span class="card-v">9,5 тыс.</span><span class="card-m">ER 3,6% в Instagram</span></span>
+</button>
+<div class="card-det" id="det25" hidden>
+<div class="det-date">Эпизод 25, 10 декабря 2025</div>
+<p>Прораб развивает soft-скиллз: без них, говорят, сейчас никуда.</p>
+<div class="det-k"><span><b>9 471</b>просмотров</span><span><b>345</b>реакций в Instagram</span><span><b>97</b>пересылок</span><span><b>3,6%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>9 471</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DSFHNRnDBPk/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep26">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det26">
+<span class="card-img"><img src="st/DShvAGEDHnZ.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">26</span></span>
+<span class="card-sum"><span class="card-t">Стройка в стиле Friends</span><span class="card-v">247 тыс.</span><span class="card-m">ER 10,7% в Instagram</span></span>
+</button>
+<div class="card-det" id="det26" hidden>
+<div class="det-date">Эпизод 26, 21 декабря 2025</div>
+<p>Ситком о стройке в стиле «Друзей»: заставка с диваном прямо на площадке, несколько сюжетных линий и смех на перебивках.</p>
+<div class="det-k"><span><b>246 718</b>просмотров</span><span><b>26 368</b>реакций в Instagram</span><span><b>8 018</b>пересылок</span><span><b>10,7%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>246 718</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DShvAGEDHnZ/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep27">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det27">
+<span class="card-img"><img src="st/DSKVYqCjMEn.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">27</span></span>
+<span class="card-sum"><span class="card-t">Строитель с искусственным интеллектом</span><span class="card-v">35 тыс.</span><span class="card-m">ER 4,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det27" hidden>
+<div class="det-date">Эпизод 27, 12 декабря 2025</div>
+<p>Начальник презентует робота-строителя «Строй G5», а тот отвечает как нейросеть и ничего не делает.</p>
+<div class="det-k"><span><b>34 585</b>просмотров</span><span><b>1 493</b>реакций в Instagram</span><span><b>509</b>пересылок</span><span><b>4,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>34 585</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DSKVYqCjMEn/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep28">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det28">
+<span class="card-img"><img src="st/DS7PSV0DHFZ.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">28</span></span>
+<span class="card-sum"><span class="card-t">Новогоднее настроение</span><span class="card-v">37 тыс.</span><span class="card-m">ER 5,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det28" hidden>
+<div class="det-date">Эпизод 28, 31 декабря 2025</div>
+<p>Новогоднее настроение на проходной стройки.</p>
+<div class="det-k"><span><b>36 993</b>просмотров</span><span><b>923</b>реакций в Instagram</span><span><b>108</b>пересылок</span><span><b>5,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>17 486</b></li><li><span>Дзен</span><b>19 507</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DS7PSV0DHFZ/" target="_blank" rel="noopener">Instagram</a><a href="https://dzen.ru/shorts/69565661e3db5c60616b5660" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep29">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det29">
+<span class="card-img"><img src="st/DTzm7SGjL5w.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">29</span></span>
+<span class="card-sum"><span class="card-t">Прораб ЖК-2026, версия 3.2</span><span class="card-v">224 тыс.</span><span class="card-m">ER 12,5% в Instagram</span></span>
+</button>
+<div class="card-det" id="det29" hidden>
+<div class="det-date">Эпизод 29, 22 января 2026</div>
+<p>Пародия на «базовый тест» из «Бегущего по лезвию 2049». Прораб проходит проверку на лояльность стройке.</p>
+<div class="det-k"><span><b>223 711</b>просмотров</span><span><b>28 037</b>реакций в Instagram</span><span><b>12 500</b>пересылок</span><span><b>12,5%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>223 711</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DTzm7SGjL5w/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep30">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det30">
+<span class="card-img"><img src="st/DTc_iKhjFjx.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">30</span></span>
+<span class="card-sum"><span class="card-t">Загородная резиденция</span><span class="card-v">9,6 тыс.</span><span class="card-m">ER 3,8% в Instagram</span></span>
+</button>
+<div class="card-det" id="det30" hidden>
+<div class="det-date">Эпизод 30, 13 января 2026</div>
+<p>Загородная резиденция не для всех, но для каждого.</p>
+<div class="det-k"><span><b>9 589</b>просмотров</span><span><b>360</b>реакций в Instagram</span><span><b>109</b>пересылок</span><span><b>3,8%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>9 589</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DTc_iKhjFjx/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep31">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det31">
+<span class="card-img"><img src="st/DTh1SUVjD5n.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">31</span></span>
+<span class="card-sum"><span class="card-t">Разговор на миллион</span><span class="card-v">21 тыс.</span><span class="card-m">ER 4,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det31" hidden>
+<div class="det-date">Эпизод 31, 15 января 2026</div>
+<p>Прораб ведёт важный телефонный разговор. Со стороны и не скажешь, что он на целый миллион.</p>
+<div class="det-k"><span><b>20 541</b>просмотров</span><span><b>545</b>реакций в Instagram</span><span><b>75</b>пересылок</span><span><b>4,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>13 023</b></li><li><span>YouTube</span><b>3 908</b></li><li><span>Дзен</span><b>3 610</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DTh1SUVjD5n/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/z-YrP860wW0" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6989c7439a6d7071fae81433" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep32">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det32">
+<span class="card-img"><img src="st/DTAmir6DOzP.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">32</span></span>
+<span class="card-sum"><span class="card-t">Новогодняя смена х3</span><span class="card-v">193 тыс.</span><span class="card-m">ER 8,2% в Instagram</span></span>
+</button>
+<div class="card-det" id="det32" hidden>
+<div class="det-date">Эпизод 32, 2 января 2026</div>
+<p>Паша выбирает между Новым годом с семьёй и тройной оплатой смены. Жена сама приезжает на стройку.</p>
+<div class="det-k"><span><b>192 819</b>просмотров</span><span><b>14 276</b>реакций в Instagram</span><span><b>2 578</b>пересылок</span><span><b>8,2%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>174 506</b></li><li><span>YouTube</span><b>4 339</b></li><li><span>Дзен</span><b>13 974</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DTAmir6DOzP/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/L-LBRWY5epE" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6955969c4120ad68e67d5d55" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep33">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det33">
+<span class="card-img"><img src="st/DUYYWBZCHYz.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">33</span></span>
+<span class="card-sum"><span class="card-t">Прораб и менеджер по продажам</span><span class="card-v">23 тыс.</span><span class="card-m">ER 3,8% в Instagram</span></span>
+</button>
+<div class="card-det" id="det33" hidden>
+<div class="det-date">Эпизод 33, 5 февраля 2026</div>
+<p>Строительные термины глазами прораба и менеджера по продажам.</p>
+<div class="det-k"><span><b>22 582</b>просмотров</span><span><b>783</b>реакций в Instagram</span><span><b>274</b>пересылок</span><span><b>3,8%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>20 343</b></li><li><span>YouTube</span><b>1 993</b></li><li><span>Дзен</span><b>246</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DUYYWBZCHYz/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/4V9nUafvC44" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/698c89749a6d7071fa30428a" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep34">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det34">
+<span class="card-img"><img src="st/DU-4byQDLfD.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">34</span></span>
+<span class="card-sum"><span class="card-t">Работаем</span><span class="card-v">21 тыс.</span><span class="card-m">ER 2,4% в Instagram</span></span>
+</button>
+<div class="card-det" id="det34" hidden>
+<div class="det-date">Эпизод 34, 20 февраля 2026</div>
+<p>Не POV, а реальность: ты решил в этом месяце не брать выходные.</p>
+<div class="det-k"><span><b>20 929</b>просмотров</span><span><b>508</b>реакций в Instagram</span><span><b>158</b>пересылок</span><span><b>2,4%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>20 929</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DU-4byQDLfD/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep35">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det35">
+<span class="card-img"><img src="st/DTp_aOmDD5h.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">35</span></span>
+<span class="card-sum"><span class="card-t">Прораб, который начинал в 90-х</span><span class="card-v">118 тыс.</span><span class="card-m">ER 5,8% в Instagram</span></span>
+</button>
+<div class="card-det" id="det35" hidden>
+<div class="det-date">Эпизод 35, 18 января 2026</div>
+<p>Монолог прораба с бурным прошлым. Отсылки к «Брату 2» и мифологии 90-х.</p>
+<div class="det-k"><span><b>118 038</b>просмотров</span><span><b>6 613</b>реакций в Instagram</span><span><b>1 656</b>пересылок</span><span><b>5,8%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>114 222</b></li><li><span>YouTube</span><b>2 290</b></li><li><span>Дзен</span><b>1 526</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DTp_aOmDD5h/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/Q_LU3D4abNE" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/6989c679d389c17d75bc5d18" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep36">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det36">
+<span class="card-img"><img src="st/DVLFCCxjCVi.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">36</span></span>
+<span class="card-sum"><span class="card-t">Что-то на богатом</span><span class="card-v">32 тыс.</span><span class="card-m">ER 4,1% в Instagram</span></span>
+</button>
+<div class="card-det" id="det36" hidden>
+<div class="det-date">Эпизод 36, 25 февраля 2026</div>
+<p>Что-то на богатом: это в первую очередь про счастливую жизнь.</p>
+<div class="det-k"><span><b>31 688</b>просмотров</span><span><b>1 291</b>реакций в Instagram</span><span><b>649</b>пересылок</span><span><b>4,1%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>31 688</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DVLFCCxjCVi/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep37">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det37">
+<span class="card-img"><img src="st/DWBtX4WjBvl.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">37</span></span>
+<span class="card-sum"><span class="card-t">Эстетика стройки</span><span class="card-v">14 тыс.</span><span class="card-m">ER 3,0% в Instagram</span></span>
+</button>
+<div class="card-det" id="det37" hidden>
+<div class="det-date">Эпизод 37, 18 марта 2026</div>
+<p>Ещё стройка, а уже эстетика. Ranta создаёт настроение даже в процессе.</p>
+<div class="det-k"><span><b>14 436</b>просмотров</span><span><b>429</b>реакций в Instagram</span><span><b>162</b>пересылок</span><span><b>3,0%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>14 436</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DWBtX4WjBvl/" target="_blank" rel="noopener">Instagram</a></div>
+</div></li>
+<li class="card" id="ep38">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det38">
+<span class="card-img"><img src="st/DVRDZy-jFdb.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">38</span></span>
+<span class="card-sum"><span class="card-t">Дрон</span><span class="card-v">111 тыс.</span><span class="card-m">ER 4,3% в Instagram</span></span>
+</button>
+<div class="card-det" id="det38" hidden>
+<div class="det-date">Эпизод 38, 27 февраля 2026</div>
+<p>Самая смешная сцена из «Friends» отдельным эпизодом. Дрон на стройке это Андрюха.</p>
+<div class="det-k"><span><b>110 919</b>просмотров</span><span><b>2 822</b>реакций в Instagram</span><span><b>957</b>пересылок</span><span><b>4,3%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>65 018</b></li><li><span>YouTube</span><b>1 653</b></li><li><span>Дзен</span><b>44 248</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DVRDZy-jFdb/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/zfXQuU8UvZQ" target="_blank" rel="noopener">YouTube</a><a href="https://dzen.ru/shorts/693a93e05927ba6301a3af3e" target="_blank" rel="noopener">Дзен</a></div>
+</div></li>
+<li class="card" id="ep39">
+<button class="card-btn" type="button" aria-expanded="false" aria-controls="det39">
+<span class="card-img"><img src="st/DN0OLYEULbM.jpg" alt="" loading="lazy" width="600" height="500"><span class="card-n">39</span></span>
+<span class="card-sum"><span class="card-t">Дети покупают квартиру</span><span class="card-v">100 тыс.</span><span class="card-m">ER 5,9% в Instagram</span></span>
+</button>
+<div class="card-det" id="det39" hidden>
+<div class="det-date">Эпизод 39, 26 августа 2025</div>
+<p>Дети в касках разыгрывают показ квартиры: мальчик в костюме за менеджера, двое других за пару покупателей.</p>
+<div class="det-k"><span><b>99 936</b>просмотров</span><span><b>5 903</b>реакций в Instagram</span><span><b>2 791</b>пересылок</span><span><b>5,9%</b>ER в Instagram</span></div>
+<ul class="det-p"><li><span>Instagram</span><b>99 373</b></li><li><span>YouTube</span><b>563</b></li></ul>
+<div class="det-links"><a href="https://www.instagram.com/reel/DN0OLYEULbM/" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/shorts/q0OKe07B8SY" target="_blank" rel="noopener">YouTube</a></div>
+</div></li>
+  </ol>
+</section>
+
+<section class="paper" id="how">
+  <div class="wrap">
+    <div class="head"><div><span class="kicker">Как снимали</span><h2>На чём построен сериал</h2></div></div>
+    <div class="how">
+      <ul class="focus">
+        <li><h3>Постоянная труппа героев</h3><p>Прораб Николаич, молодой мастер Паша, начальник Сергей Николаевич, Борис, Андрюха. Зритель узнаёт героев от эпизода к эпизоду и ждёт новых встреч.</p></li>
+        <li><h3>Бизнес-класс через юмор</h3><p>Строители не матерятся, обедают как в ресторане и обсуждают архитектуру Возрождения. Преимущества ЖК спрятаны в сюжет, а не в закадровый текст.</p></li>
+        <li><h3>Пародии на то, что знают все</h3><p>«Матрица», «Бегущий по лезвию 2049», «Друзья», «Достучаться до небес», «Брат 2». Узнаваемая форма удерживает зрителя с первой секунды.</p></li>
+        <li><h3>Бренд в кадре (продакт-плейсмент)</h3><p>Каски и куртки LAR почти в каждом кадре, в финале пэкшот Ranta Residence. Реклама не мешает смотреть.</p></li>
+        <li><h3>Новые технологии в производстве</h3><p>Некоторые эпизоды сделаны через ИИ-замену лиц в оригинальных сценах фильмов.</p></li>
+      </ul>
+      <dl class="spec">
+        <div><dt>Выход</dt><dd>С мая 2025 по март 2026</dd></div>
+        <div><dt>Эпизоды</dt><dd>39 вертикальных серий</dd></div>
+        <div><dt>Площадки</dt><dd>Instagram, YouTube, Дзен</dd></div>
+        <div><dt>Съёмки</dt><dd>Выездные смены на стройке в Зеленогорске</dd></div>
+        <div class="wide"><dt>Группа</dt><dd>Режиссёр и продюсер, сценаристы KK&nbsp;Production, два ассистента продюсера, операторы и монтажёры. За проект в группе поработали около десяти человек.</dd></div>
+        <div class="wide"><dt>Этапы под ключ</dt><dd>Идея, сценарии, кастинг, съёмка, монтаж и упаковка. Клиент получал готовые эпизоды.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="wrap end" id="credits">
+  <div class="roll">
+    <div><span>Режиссёр и продюсер</span><b>Кирилл Карпеев</b></div>
+    <div><span>Сценарии</span><b>Кирилл Карпеев и команда KK&nbsp;Production</b></div>
+    <div><span>Производство</span><b>KK&nbsp;Production</b></div>
+    <div><span>По заказу</span><b>Ranta Residence, LAR&nbsp;Development</b></div>
+  </div>
+  <div class="offer">
+    <h2>Сериал для вашего бренда</h2>
+    <p>KK&nbsp;Production. Идея, сценарии, съёмка и постпродакшн под ключ.</p>
+    <div class="contacts">
+      <a class="contact tg" href="https://t.me/dominolis" target="_blank" rel="noopener"><small>Telegram</small>@dominolis</a>
+      <a class="contact tg" href="https://www.instagram.com/dominolis/" target="_blank" rel="noopener"><small>Instagram</small>@dominolis</a>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap foot">
+  Данные с публичных страниц площадок на 14 октября 2026 года. Пересылки Instagram взяты из приложения. На YouTube и в Дзене эпизоды выходили позже и под другими названиями, часть эпизодов там не публиковалась.
+</footer>
+<script>
+(function () {
+  function setOpen(card, open) {
+    card.classList.toggle('open', open);
+    card.querySelector('.card-det').hidden = !open;
+    card.querySelector('.card-btn').setAttribute('aria-expanded', String(open));
+  }
+  function toggle(card, force) {
+    var open = force === undefined ? !card.classList.contains('open') : force;
+    document.querySelectorAll('.card.open').forEach(function (c) { if (c !== card) setOpen(c, false); });
+    setOpen(card, open);
+  }
+  document.querySelectorAll('.card-btn').forEach(function (b) {
+    b.addEventListener('click', function () { toggle(b.closest('.card')); });
+  });
+  document.querySelectorAll('[data-open]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var card = document.getElementById(a.dataset.open);
+      if (!card) return;
+      e.preventDefault();
+      toggle(card, true);
+      card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    });
+  });
+  var track = document.querySelector('.rv-track');
+  if (track) {
+    var cards = [].slice.call(track.children), count = document.querySelector('.rv-count');
+    var prev = document.querySelector('.rv-btn[data-dir="-1"]'), next = document.querySelector('.rv-btn[data-dir="1"]');
+    function cur() { var x = track.scrollLeft, best = 0, d = 1e9; cards.forEach(function (c, i) { var dd = Math.abs(c.offsetLeft - track.offsetLeft - x); if (dd < d) { d = dd; best = i; } }); return best; }
+    function upd() { var i = cur(); count.textContent = (i + 1) + ' / ' + cards.length; prev.disabled = track.scrollLeft < 4; next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4; }
+    function go(i) { i = Math.max(0, Math.min(cards.length - 1, i)); track.scrollTo({ left: cards[i].offsetLeft - track.offsetLeft, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+    document.querySelectorAll('.rv-btn').forEach(function (b) { b.addEventListener('click', function () { go(cur() + Number(b.dataset.dir)); }); });
+    track.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); go(cur() + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur() - 1); } });
+    var raf; track.addEventListener('scroll', function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(upd); }, { passive: true });
+    window.addEventListener('resize', upd); upd();
+  }
+})();
+</script>
+
+</body></html>
